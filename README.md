@@ -39,17 +39,7 @@ WARNING: The next step will overwrite some native source codes in your src folde
 
 3) Choose some machine file (e.g. Makefile.mpi) and build LAMMPS using the following commands:
 
-i) make yes-manybody
-
-ii) make yes-kspace
-
-iii) make yes-molecule
-
-iv) make yes-rigid
-
-v) make yes-user-meamc
-
-vi) make yes-user-ffe
+vi) make yes-user-dcci
 
 vii) make mpi
 
@@ -67,5 +57,5 @@ lammps-22Aug18
 
 Contact:
 --------------
-Rodolfo Paula Leite - pl.rodolfo@gmail.com
+Samuel Cajahuaringa - samuelcajahurainga@gmail.com
 
