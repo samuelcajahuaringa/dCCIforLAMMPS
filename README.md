@@ -1,9 +1,7 @@
 # Nonequilibrium Free-energy calculation of Phase-Boundaries using LAMMPS
 
 ## What is this?
----------------
 This repository contains a set of source codes and input scripts that allows to perform nonequilibrium free-energy calculations of phase-boundaries of atomistic systems using [LAMMPS](https://lammps.sandia.gov/) code. Details about the code implementation, capabilities and obtained results with these methods will be found in:
-
 ["Nonequilibrium Free-energy calculation of Phase-Boundaries using LAMMPS"
 Samuel Cajahuaringa, Maurice de Koning, and Alex Antonelli]()
 
