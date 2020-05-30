@@ -57,5 +57,5 @@ lammps-22Aug18
 
 Contact:
 --------------
-Samuel Cajahuaringa - samuelcajahurainga@gmail.com
+Samuel Cajahuaringa - samuelcajahuaringa@gmail.com
 
