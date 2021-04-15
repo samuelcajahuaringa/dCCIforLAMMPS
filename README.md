@@ -62,17 +62,16 @@ Inside the [`example`](example) directory of this repository you should find scr
 
 [`liquid/phase.lammps`](example/liquid/phase.lammps): data file of liquid phase containing information LAMMPS needs to run a simulation.
 
-[`lj_solid_liquid_coexistence_line.dat.py`](example/lj_solid_liquid_coexistence_line.dat): coexistence points calculated by  R. Agrawal and D. A. Kofke, Mol. Phys. 85, 43-59 (1995).
+[`lj_solid_liquid_coexistence_line.dat`](example/lj_solid_liquid_coexistence_line.dat): coexistence points calculated by  R. Agrawal and D. A. Kofke, Mol. Phys. 85, 43-59 (1995).
 
 #### Running the example scripts
-From the [`example`](example/) directory use the following command to run the dcci simulations 
+From the [`example`](example/) directory use the following command to run the dcci simulations: 
 ```
-cd <your-local-lammps>/src/
-git clone https://github.com/samuelcajahuaringa/dCCIforLAMMPS.git USER-DCCI
+mpirun -np 2 lmp_machine -partition 2x1 -in in.lammps
 ```
-If the scripts ran successfully you will obtain in the `log.lammps` file the following results:
+If the scripts ran successfully you will obtain in the `log.lammps` file and abble to compare with the coexistence points of the file [`lj_solid_liquid_coexistence_line.dat`](example/lj_solid_liquid_coexistence_line.dat) to obtain the following results:
 
-
+![sad](https://github.com/samuelcajahuaringa/dCCIforLAMMPS/blob/master/dcci_lj.png)
 
 
 Current compatibility:
