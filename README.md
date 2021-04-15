@@ -22,7 +22,7 @@ What is new in these source codes?
 |fix_adapt_dcci.cpp / .h               | no            | Similar sytanx of fix_adapt.cpp / . h but in this case the fscale is controled by the dcci.cpp / h
 |dcci.cpp / .h                  | no            | dynamical integration of Clausius-Clapeyron equation.  |
 |fix_nh.cpp / .h                  | yes           | Added scaling pressure into the integrator equation of motion.  |
-|fixh                  | yes           | Added function reset_target_pressure.  |
+|fix.h                  | yes           | Added function reset_target_pressure.  |
 
 
 How to install?
