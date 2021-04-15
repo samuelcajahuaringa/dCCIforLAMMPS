@@ -73,6 +73,10 @@ If the scripts ran successfully you will obtain in the `log.lammps` file and abb
 
 ![sad](https://github.com/samuelcajahuaringa/dCCIforLAMMPS/blob/master/dcci_lj.png)
 
+<p align="center">
+  <img src="https://github.com/samuelcajahuaringa/dCCIforLAMMPS/blob/master/dcci_lj.png" width="400"/>
+</p>
+
 
 Current compatibility:
 --------------
