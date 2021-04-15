@@ -64,6 +64,17 @@ Inside the [`example`](example) directory of this repository you should find scr
 
 [`lj_solid_liquid_coexistence_line.dat.py`](example/lj_solid_liquid_coexistence_line.dat): coexistence points calculated by  R. Agrawal and D. A. Kofke, Mol. Phys. 85, 43-59 (1995).
 
+#### Running the example scripts
+From the [`example`](example/) directory use the following command to run the dcci simulations 
+```
+cd <your-local-lammps>/src/
+git clone https://github.com/samuelcajahuaringa/dCCIforLAMMPS.git USER-DCCI
+```
+If the scripts ran successfully you will obtain in the `log.lammps` file the following results:
+
+
+
+
 Current compatibility:
 --------------
 lammps-22Aug18
