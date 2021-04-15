@@ -1,0 +1,163 @@
+<HTML>
+<CENTER><A HREF = "http://lammps.sandia.gov">LAMMPS WWW Site</A> - <A HREF = "Manual.html">LAMMPS Documentation</A> - <A HREF = "Section_commands.html#comm">LAMMPS Commands</A> 
+</CENTER>
+
+
+
+
+
+
+<HR>
+
+<H3>dcci command 
+</H3>
+<P><B>Syntax:</B>
+</P>
+<PRE>dcci Tcoex Pcoex lambda fix-ID barostat-ID t_sc keyword values 
+</PRE>
+<LI>Tcoex = intial temperature of coexistence between the phases 
+
+<LI>Pcoex = intial pressure of coexistence between the phases 
+
+<LI>lambda = initisl scaling variable of this command 
+
+<LI>fix-ID = ID of fix adapt/dcci 
+
+<LI>barostat-ID = ID of the barostat that controls the pressure 
+
+<LI>t_sc = number of steps for the scaling procedure 
+
+<LI>keyword = <I>temp</I> or <I>press</I> 
+
+<PRE>  <I>temp</I> values = Tstart Tstop = desired temperature of coexistence at start/end of run (temperature units) 
+  <I>press</I> values = Pstart Pstop = desired pressure of coexistence at start/end of run (pressure units) 
+</PRE>
+
+</UL>
+<P><B>Examples:</B>
+</P>
+<PRE>dcci 0.7 1.0 $<I>lambda</I> fxADAPTDCCI fxnpt 50000 press 1.0 174.0
+dcci 0.7 1.0 $<I>lambda</I> fxADAPTDCCI fxnpt 50000 temp 0.7 7.8
+dcci $<I>Tcoex</I> $<I>Pcoex</I> $<I>lambda</I> fxADAPTDCCI fxnph $<I>t_sc</I> press $<I>Pi</I> $<I>Pf</I>
+dcci $<I>Tcoex</I> $<I>Pcoex</I> $<I>lambda</I> fxADAPTDCCI fxnph $<I>t_sc</I> temp $<I>Ti</I> $<I>Tf</I> 
+</PRE>
+<P><B>Description:</B>
+</P>
+<P>This command allows you to compute the phase boundaries, knowing only a single
+coexistence point between phases, by performing a nonequilibrium dynamical
+Clausius-Clapeyron integration. A detailed explanation of how to use this
+command and choose its parameters for optimal performance and accuracy is
+given in the paper by <A HREF = "#Cajahuaringa21">Cajahuaringa</A>. This is done
+by run only two systems in parallel (one for each phase). See the
+"Multi-replicasimulations <Howto_replica>" for details of how to run
+replicas on multiple partitions of one or more processors.
+</P>
+<P>Instead of variables mention above, this command need scaling the forces in
+both systems in parallel by the <A HREF = "fix_adapt_dcci.html">fix adapt/dcci</A>.
+The scaling parameter <I>lambda</I> is controlled by the dcci command, which is
+typically a <A HREF = "variable.html">variable</A> previously set in the input script, so
+that each system is assigned the same scaling parameter and scaling pressure, see the
+paper <A HREF = "#deKoning01">de Koning</A> for more details. For example:
+</P>
+<P><B>Examples:</B>
+</P>
+<PRE>variable phase world solid liquid
+...
+read_data $<I>phase</I>/phase.lammps
+...
+variable lambda equal 1.0
+fix fxnpt all npt temp $<I>Tcoex</I> $<I>Tcoex</I> $<I>Tdamp</I> iso $<I>Pcoex</I> $<I>Pcoex</I> $<I>Pdamp</I>
+fix fxADAPT-DCCI all adapt/dcci $<I>lambda</I> pair lj/cut fscale * *
+dcci $<I>Tcoex</I> $<I>Pcoex</I> $<I>lambda</I> fxADAPT-DCCI fxnpt $<I>t_sc</I> press $<I>Pi</I> $<I>Pf</I> 
+</PRE>
+<P>in the similar way of <A HREF = "temper.html">temper</A> command is necessary especify the
+directory of each phase, after that it is define a initial lambda value,
+who is pass to the <A HREF = "fix_adapt_dcci.html">fix adapt/dcci</A> for scaling the forces
+in each phase and the dcci command calculated the new value of the lambda variable
+and scaling pressure to perform the simulation of both phase in the next
+coexistence condition, this process is repeated <I>t_sc</I> steps until the defined
+final temperature (pressure).
+</P>
+<P>The last argument <I>temp or press</I> keyword allows the use of two different control
+to computed the phase bounadaries, if is select the <I>temp</I> keyword is calculated
+the coxistence pressure as function of the temperature from <I>Tstart</I> to <I>Tstop</I>
+and if it is select the <I>press</I> keyword is calculated the coxistence temperature
+as function of the pressure from <I>Pstart</I> to <I>Pstop</I>.
+</P>
+<P>As a dcci run proceeds, two log files and screen output files are created,
+one per phase. By default these files are named log.lammps.M and screen.M
+where <I>M</I> is the phase number from 0 to 1.  See the
+<A HREF = "Run_options.html">-log and -screen command-line swiches</A> for info on how to
+change these names.
+</P>
+<P>The main screen and log file (log.lammps) will list information about
+dcci dynamics assigned to each phase at each coxistence condition output timestep.
+</P>
+<PRE><B>Examples:</B>
+Running on 2 partitions of processors
+Setting dcci ...
+Step  Tcoex  Pcoex  lambda Pcoex_rs pe1  pe2  vol1  vol2
+50000    0.770000    1.000000    1.00000000    1.00000000    -3657.45830    -3049.38969    508.9074    576.0835
+50001    0.770265    1.003460    0.99965590    1.00311471    -3658.25936    -3048.49558    508.9249    576.0910
+50002    0.770529    1.006920    0.99931295    1.00622820    -3658.60164    -3048.24218    508.9424    576.0989
+50003    0.770793    1.010380    0.99897058    1.00933989    -3658.79853    -3048.69379    508.9599    576.1074
+50004    0.771058    1.013840    0.99862835    1.01244937    -3658.54627    -3049.93109    508.9774    576.1165
+50005    0.771322    1.017300    0.99828565    1.01555599    -3658.06732    -3051.29644    508.9948    576.1260
+50006    0.771588    1.020760    0.99794228    1.01865956    -3657.88431    -3052.18231    509.0121    576.1360
+50007    0.771854    1.024220    0.99759863    1.02176047    -3657.73010    -3053.17874    509.0294    576.1465 
+</PRE>
+<P>The second and third columns rotuled as Tcoex and Pcoex, are the temperature and
+the pressure coexistences conditions calculated by the dcci method, the fourth and
+fifth columns rotuled as lambda and Pcoex_rs, are the lambda scaling parameter and
+the scaling pressure, the pe1 and pe2 are the instantaneus potential energy per atom
+of each phase and the vol1 and vol2 are the instantaneus volume per atom of each phase.
+</P>
+<P>If you need calculated the phase boundaries between isotropic and anisotropic phases, for example: the phase
+boundaries between cubic diamond and beta-tin phases of silicon, this can be done using the follow protocol:
+</P>
+<PRE><B>Examples:</B>
+variable phase    world Si-I Si-II
+variable ensemble world iso aniso
+variable lambda   equal 1.0
+...
+read_data         $<I>phase</I>/phase.lammps
+...
+fix f1 all npt temp $<I>Tcoex</I> $<I>Tcoex</I> $<I>ensemble</I> $<I>Pcoex</I> $<I>Pcoex</I> $<I>Pdamp</I>
+fix f2 all adapt/dcci $<I>lambda</I> pair sw fscale * *
+dcci $<I>Tcoex</I> $<I>Pcoex</I> $<I>lambda</I> f2 f1 $<I>t_sc</I> temp $<I>Ti</I> $<I>Tf</I> 
+</PRE>
+<P>NOTE: As described in <A HREF = "#Cajahuaringa21">Cajahuaringa</A>, for the calculation of 
+the phase boundaries with small slope (in absolute value), which is common 
+in solid-solid coexistence curves, it is more convenient control of the 
+coexistence temperature and if, on other hand, the phase boundaries is expected
+to have a large slope (in absolute value),which is common in solid-fluid 
+and fluid-fluid coexistence curves, for these case is more convenient 
+control the coexistence pressure.
+</P>
+<HR>
+
+<P><B>Restrictions:</B>
+</P>
+<P>This command must be used with <A HREF = "fix_adapt_dcci.html">fix adapt/dcci</A>.
+</P>
+<P>This command only works with atomisticis systems.
+</P>
+<P>This command should be used with a fix that maintains the
+isothermal-isobaric (NPT) ensemble.
+</P>
+<P><B>Related commands:</B>
+</P>
+<P><A HREF = "fix_adapt_dcci.html">fix adapt/dcci</A>, <A HREF = "prd.html`">prd</A>, <A HREF = "variable.html">variable</A>
+</P>
+<P><B>Default:</B> none
+</P>
+<A NAME = "Cajahuringa21"></A>
+
+<P><B>(Cajahuaringa)</B> Cajahuaringa, Antonelli, arXiv:2103.10449 (2021).
+</P>
+<A NAME = "deKoning01"></A>
+
+<P><B>(de Koning)</B> de Koning, Antonelli, Sidney, J Chem Phys 115, 11025 (2001).
+</P>
+<!-- PAGE BREAK -->
+</HTML>

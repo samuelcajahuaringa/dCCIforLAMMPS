@@ -13,8 +13,8 @@
 
 /* ----------------------------------------------------------------------
    Contributing author:  Samuel Cajahuaringa Macollunco (CEFET-MG/BR)
-   lambda scaling forces parameter 
-   works with dynamics Clausius Clapeyron Integration (DCCI)
+   lambda scaling forces parameters works with the dynamical
+   Clausius-Clapeyron Integration (dcci) method
 ------------------------------------------------------------------------- */
 
 #include <cmath>
@@ -28,7 +28,6 @@
 #include "force.h"
 #include "pair.h"
 #include "pair_hybrid.h"
-#include "kspace.h"
 #include "input.h"
 #include "variable.h"
 #include "respa.h"
@@ -40,7 +39,7 @@ using namespace LAMMPS_NS;
 using namespace FixConst;
 using namespace MathConst;
 
-enum{PAIR,KSPACE,ATOM};
+enum{PAIR,ATOM};
 
 /* ---------------------------------------------------------------------- */
 
@@ -63,10 +62,6 @@ nadapt(0), adapt(NULL)
       if (iarg+5 > narg) error->all(FLERR,"Illegal fix adapt/dcci command");
       nadapt++;
       iarg += 5;
-    } else if (strcmp(arg[iarg],"kspace") == 0) {
-      if (iarg+1 > narg) error->all(FLERR,"Illegal fix adapt/dcci command");
-      nadapt++;
-      iarg += 1;
     } else break;
   }
 
@@ -95,41 +90,7 @@ nadapt(0), adapt(NULL)
                     adapt[nadapt].jlo,adapt[nadapt].jhi);
       nadapt++;
       iarg += 5;
-    } else if (strcmp(arg[iarg],"kspace") == 0) {
-      if (iarg+1 > narg) error->all(FLERR,"Illegal fix adapt/dcci command");
-      adapt[nadapt].which = KSPACE;
-         
-      nadapt++;
-      iarg += 1;
     } else break;
-  }
-
-  // optional keywords
-
-  resetflag = 0;
-  scaleflag = 0;
-  fscaleflag = 0;
-
-  while (iarg < narg) {
-    if (strcmp(arg[iarg],"reset") == 0) {
-      if (iarg+2 > narg) error->all(FLERR,"Illegal fix adapt/dcci command");
-      if (strcmp(arg[iarg+1],"no") == 0) resetflag = 0;
-      else if (strcmp(arg[iarg+1],"yes") == 0) resetflag = 1;
-      else error->all(FLERR,"Illegal fix adapt/dcci command");
-      iarg += 2;
-    } else if (strcmp(arg[iarg],"scale") == 0) {
-      if (iarg+2 > narg) error->all(FLERR,"Illegal fix adapt/dcci command");
-      if (strcmp(arg[iarg+1],"no") == 0) scaleflag = 0;
-      else if (strcmp(arg[iarg+1],"yes") == 0) scaleflag = 1;
-      else error->all(FLERR,"Illegal fix adapt/dcci command");
-      iarg += 2;
-    } else if (strcmp(arg[iarg],"fscale") == 0) {
-      if (iarg+2 > narg) error->all(FLERR,"Illegal fix adapt/dcci command");
-      if (strcmp(arg[iarg+1],"no") == 0) fscaleflag = 0;
-      else if (strcmp(arg[iarg+1],"yes") == 0) fscaleflag = 1;
-      else error->all(FLERR,"Illegal fix adapt/dcci command");
-      iarg += 2;
-    } else error->all(FLERR,"Illegal fix adapt/dcci command");
   }
 
   // allocate pair style arrays
@@ -250,15 +211,6 @@ void FixAdaptDCCI::init()
       }
 
       delete [] pstyle;
-  
-    } else if (ad->which == KSPACE) {
-      if (force->kspace == NULL)
-        error->all(FLERR,"Fix adapt/dcci kspace style does not exist");
-      if (fscaleflag == 1) {
-      kspace_scale = (double *) force->kspace->extract("fscale");
-      } else kspace_scale = (double *) force->kspace->extract("scale");
-
-
     }
   }
 
@@ -313,7 +265,7 @@ void FixAdaptDCCI::pre_force_respa(int vflag, int ilevel, int)
 
 void FixAdaptDCCI::post_run()
 {
-  if (resetflag) restore_settings();
+  //if (resetflag) restore_settings();
 }
 
 /* ----------------------------------------------------------------------
@@ -336,24 +288,12 @@ void FixAdaptDCCI::change_settings()
 
     if (ad->which == PAIR) {
       if (ad->pdim == 0) {
-        if (scaleflag) *ad->scalar = value * ad->scalar_orig;
-        else *ad->scalar = value;
+        *ad->scalar = value;
       } else if (ad->pdim == 2) {
-        if (scaleflag)
-          for (i = ad->ilo; i <= ad->ihi; i++)
-            for (j = MAX(ad->jlo,i); j <= ad->jhi; j++)
-              ad->array[i][j] = value*ad->array_orig[i][j];
-        else
           for (i = ad->ilo; i <= ad->ihi; i++)
             for (j = MAX(ad->jlo,i); j <= ad->jhi; j++)
               ad->array[i][j] = value;
       }
-
-    // set kspace scale factor
-
-    } else if (ad->which == KSPACE) {
-      *kspace_scale = value;
-
     }
   }
 
@@ -389,10 +329,6 @@ void FixAdaptDCCI::restore_settings()
           for (int j = MAX(ad->jlo,i); j <= ad->jhi; j++)
             ad->array[i][j] = ad->array_orig[i][j];
       }
-
-    } else if (ad->which == KSPACE) {
-      *kspace_scale = 1.0;
-
     }
   }
 

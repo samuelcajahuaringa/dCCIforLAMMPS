@@ -39,7 +39,7 @@ class FixAdaptDCCI : public Fix {
   double compute_scalar();
 
  private:
-  int nadapt,resetflag,scaleflag,fscaleflag;
+  int nadapt,fscaleflag;
   int anypair;
   int nlevels_respa;
 
@@ -54,7 +54,6 @@ class FixAdaptDCCI : public Fix {
   };
 
   Adapt *adapt;
-  double *kspace_scale;
 
   void change_settings();
   void restore_settings();
@@ -73,59 +72,35 @@ Self-explanatory.  Check the input script syntax and compare to the
 documentation for the command.  You can use -echo screen as a
 command-line option when running LAMMPS to see the offending line.
 
-E: Cannot use dynamic group with fix adapt atom
-
-This is not yet supported.
-
-E: Variable name for fix adapt does not exist
+E: Variable name for fix adapt/dcci does not exist
 
 Self-explanatory.
 
-E: Variable for fix adapt is invalid style
+E: Variable for fix adapt/dcci is invalid style
 
 Only equal-style variables can be used.
 
-E: Fix adapt pair style does not exist
+E: Fix adapt/dcci pair style does not exist
 
 Self-explanatory
 
-E: Fix adapt pair style param not supported
+E: Fix adapt/dcci pair style param not supported
 
 The pair style does not know about the parameter you specified.
 
-E: Fix adapt pair style param is not compatible
+E: Fix adapt/dcci pair style param is not compatible
 
 Self-explanatory
 
-E: Fix adapt type pair range is not valid for pair hybrid sub-style
+E: Fix adapt/dcci type pair range is not valid for pair hybrid sub-style
 
 Self-explanatory.
 
-E: Fix adapt bond style does not exist
-
-UNDOCUMENTED
-
-E: Fix adapt bond style param not supported
-
-UNDOCUMENTED
-
-E: Fix adapt does not support bond_style hybrid
-
-UNDOCUMENTED
-
-E: Fix adapt kspace style does not exist
+E: Fix adapt/dcci kspace style does not exist
 
 Self-explanatory.
 
-E: Fix adapt requires atom attribute diameter
-
-The atom style being used does not specify an atom diameter.
-
-E: Fix adapt requires atom attribute charge
-
-The atom style being used does not specify an atom charge.
-
-E: Could not find fix adapt storage fix ID
+E: Could not find fix adapt/dcci storage fix ID
 
 This should not happen unless you explicitly deleted
 a secondary fix that fix adapt created internally.

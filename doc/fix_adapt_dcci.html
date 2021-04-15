@@ -1,0 +1,98 @@
+<HTML>
+<CENTER><A HREF = "http://lammps.sandia.gov">LAMMPS WWW Site</A> - <A HREF = "Manual.html">LAMMPS Documentation</A> - <A HREF = "Section_commands.html#comm">LAMMPS Commands</A> 
+</CENTER>
+
+
+
+
+
+
+<HR>
+
+<H3>fix adapt/dcci command 
+</H3>
+<P><B>Syntax:</B>
+</P>
+<PRE>fix ID group-ID adapt/dcci lambda attribute args ... 
+</PRE>
+<UL><LI>ID, group-ID are documented in <A HREF = "fix.html">fix</A> command 
+
+<LI>adapt = style name of this fix command 
+
+<LI>N = adapt simulation settings every this many timesteps 
+
+<LI>one or more attribute/arg pairs may be appended 
+
+<LI>attribute = <I>pair</I> or <I>kspace</I> or <I>atom</I> 
+
+<PRE>  <I>pair</I> args = pstyle pparam I J v_name
+    pstyle = pair style name, e.g. lj/cut
+    pparam = parameter to adapt over time
+    I,J = type pair(s) to set parameter for
+    v_name = variable with name that calculates value of pparam 
+</PRE>
+
+</UL>
+<P><B>Examples:</B>
+</P>
+<PRE>fix 1 all adapt/dcci $<I>lambda</I> pair lj/cut fscale * *
+fix 1 all adapt/dcci $<I>lambda</I> pair sw fscale * * 
+</PRE>
+<P><B>Description:</B>
+</P>
+<P>Change or adapt one or more specific simulation attributes or settings
+over time as a simulation runs.
+</P>
+<P>This is an enhanced version of the <A HREF = "fix_adapt.html">fix adapt</A> command
+with two differences,
+</P>
+<P>The forces on the atoms are dynamically scaled during the simulation
+for each step, the rescaling is done in the following manner:
+</P>
+<CENTER><IMG SRC = "Eqs/fix_adapt_dcci.jpg">
+</CENTER>
+<P>where <I>F_int</I> is the total force on the atoms due to the interatomic
+potential and <I>lambda</I> is the scaling parameter. 
+</P>
+<P>The parameter of scaling <I>lambda</I> is controlled by the <A HREF = "dcci.html">dcci</A> command
+in order to calculted the coexistence conditions run a nonequilbirum dynamics.
+</P>
+<P>See the doc pages for individual pair styles and their energy formulas for the
+meaning of these parameters:
+</P>
+<DIV ALIGN=center><TABLE  BORDER=1 >
+<TR><TD ><A HREF = "pair_eam.html">eam, eam/alloy, eam/fs</A></TD><TD > fscale</TD><TD > type pairs</TD></TR>
+<TR><TD ><A HREF = "pair_lj.html">lj/cut</A></TD><TD > fscale</TD><TD > type pairs</TD></TR>
+<TR><TD ><A HREF = "pair_sw.html">sw</A></TD><TD > fscale</TD><TD > type pairs 
+</TD></TR></TABLE></DIV>
+
+<P>NOTE: It is easy to add new pairwise potentials and their parameters to 
+scale only the force. All it typically takes is adding an extract() method to
+the pair_*.cpp file associated with the potential.
+</P>
+<HR>
+
+<P><B>Restart, fix_modify, output, run start/stop, minimize info:</B>
+</P>
+<P>This fix works in combination with the <A HREF = "dcci.html">dcci</A> command.
+</P>
+<P>No information about this fix is written to <A HREF = "restart.html">binary restart
+files</A>.  
+</P>
+<P>None of the <A HREF = "fix_modify.html">fix_modify</A> options
+are relevant to this fix. 
+</P>
+<P>This fix is not invoked during <A HREF = "minimize.html">energy minimization</A>.
+</P>
+<P><B>Restrictions:</B> none
+</P>
+<P><B>Related commands:</B>
+</P>
+<P><A HREF = "dcci.html">dcci</A>, <A HREF = "fix_adapt.html">fix adapt</A>
+</P>
+<P><B>Default:</B>
+</P>
+<P>None
+</P>
+<!-- PAGE BREAK -->
+</HTML>

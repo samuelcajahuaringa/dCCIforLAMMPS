@@ -45,6 +45,7 @@ class DCCI : protected Pointers {
   double P_start,P_end;
   double lambda,Pcoex_rs;
   int dcci_flag;
+  int atomic_flag;
   int *NATOMS;                 // numbers of atoms of each phase
   double *PE;                  // potential energy of each phase
   double *VOL;                 // volume of each phase
@@ -64,14 +65,14 @@ class DCCI : protected Pointers {
 
 /* ERROR/WARNING messages:
 
-E: Must have more than one processor partition to temper
+E: Must have more than one processor partition to perfom dCCI.
 
-Cannot use the temper command with only one processor partition.  Use
+Cannot use the dcci command with only one processor partition.  Use
 the -partition command-line option.
 
-E: Temper command before simulation box is defined
+E: dcci command before simulation box is defined.
 
-The temper command cannot be used before a read_data, read_restart, or
+The dcci command cannot be used before a read_data, read_restart, or
 create_box command.
 
 E: Illegal ... command
@@ -80,29 +81,39 @@ Self-explanatory.  Check the input script syntax and compare to the
 documentation for the command.  You can use -echo screen as a
 command-line option when running LAMMPS to see the offending line.
 
-E: Tempering fix ID is not defined
+E: fix adapt/dcci ID is not defined.
 
-The fix ID specified by the temper command does not exist.
+The fix ID specified by the dcci command does not exist.
 
-E: Invalid frequency in temper command
+E: fix npt or fix nph ID is not defined.
 
-Nevery must be > 0.
+The fix ID specified by the dcci  command does not exist.
 
-E: Non integer # of swaps in temper command
+E: Invalid numbers of scaling process in dcci command.
 
-Swap frequency in temper command must evenly divide the total # of
-timesteps.
+t_sc >= 0.0.
 
-E: Tempering temperature fix is not valid
+E: Illegal temp or press command.
 
-The fix specified by the temper command is not one that controls
-temperature (nvt or langevin).
+Self-explanatory. 
 
-E: Too many timesteps
+E: Tempering nd is apply to atomic system.
+
+Self-explanatory.
+
+E: controling of pressure fix is not supported.
+
+Self-explanatory.
+
+E: Too many timesteps.
 
 The cumulative timesteps must fit in a 64-bit integer.
 
-E: Tempering could not find thermo_pe compute
+E: dcci apply only for two systems.
+
+Self-explanatory.
+
+E: dcci could not find thermo_pe compute
 
 This compute is created by the thermo command.  It must have been
 explicitly deleted by a uncompute command.

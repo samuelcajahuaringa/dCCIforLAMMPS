@@ -12,8 +12,7 @@
 ------------------------------------------------------------------------- */
 
 /* ----------------------------------------------------------------------
-   Contributing author: Oscar Samuel Cajahuaringa Macollunco 
-                       (CEFET-MG Curvelo)
+   Contributing author: Samuel Cajahuaringa Macollunco (CEFET-MG/BR)
    Contact Email: samuelcajahuaringa@gmail.com 
 ------------------------------------------------------------------------- */
 
@@ -37,12 +36,27 @@
 #include "timer.h"
 #include "memory.h"
 #include "error.h"
+#include "citeme.h"
 
 using namespace LAMMPS_NS;
 
+static const char cite_dcci[] =
+  "dcci command:\n\n"
+  "@article{cajahuaringa2021,\n"
+  "  author={Samuel Cajahuaringa and Alex Antonelli},\n"
+  "  title={Nonequilibrium free-energy calculation of phase-boundaries using LAMMPS},\n"
+  "  journal={arXiv:2103.10449},\n"
+  "  volume={-},\n"
+  "  pages={-},\n"
+  "  year={2021},\n"
+  "  publisher={-}\n"
+  "}\n\n";
+
 /* ---------------------------------------------------------------------- */
 
-DCCI::DCCI(LAMMPS *lmp) : Pointers(lmp) {}
+DCCI::DCCI(LAMMPS *lmp) : Pointers(lmp) {
+  if (lmp->citeme) lmp->citeme->add(cite_dcci); 
+}
 
 /* ---------------------------------------------------------------------- */
 
@@ -53,24 +67,24 @@ DCCI::~DCCI()
 }
 
 /* ----------------------------------------------------------------------
-   perform tempering with inter-world swaps
+   perform a dynamic Clausius-Clapeyron integration (dcci) method
 ------------------------------------------------------------------------- */
 
 void DCCI::command(int narg, char **arg)
-{
+{  
   if (universe->nworlds == 1)
-    error->all(FLERR,"Must have more than one processor partition to dCCI");
+    error->all(FLERR,"Must have more than one processor partition to dcci");
   if (domain->box_exist == 0)
-    error->all(FLERR,"dCCI command before simulation box is defined");
-  //if (narg != 6 && narg != 7)
-  //  error->universe_all(FLERR,"Illegal dCCI command");
+    error->all(FLERR,"dcci command before simulation box is defined");
+  if (narg != 9) // && narg != 7)
+    error->universe_all(FLERR,"Illegal dcci command");
  
   // coexistence condition 
-  Tcoex = force->numeric(FLERR,arg[0]);  // coexistence temperature 
-  Pcoex = force->numeric(FLERR,arg[1]);  // coexistence pressure
+  Tcoex = force->numeric(FLERR,arg[0]);  // initial coexistence temperature 
+  Pcoex = force->numeric(FLERR,arg[1]);  // initial coexistence pressure
 
-  lambda = force->numeric(FLERR,arg[2]);
-  lambda_initial = lambda;
+  lambda = force->numeric(FLERR,arg[2]); // lambda parameter need define too in the fix adapt/dcci
+  lambda_initial = lambda;               // initial lambda parameter
 
   // Get and check if adapt/dcci fix exists
   for (whichfix = 0; whichfix < modify->nfix; whichfix++)
@@ -79,7 +93,7 @@ void DCCI::command(int narg, char **arg)
     error->universe_all(FLERR,"fix adapt/dcci ID is not defined");
   fix_adapt_dcci = (FixAdaptDCCI*)(modify->fix[whichfix]);
 
-  // Check input values lambdas should be equal, assign other gREM values
+  // Check input values lambdas should be equal, assign other dcci values
   if (lambda != fix_adapt_dcci->lambda)
     error->universe_all(FLERR,"Lambda from fix adapt/dcci in the same world"
         " must be the same");
@@ -91,48 +105,37 @@ void DCCI::command(int narg, char **arg)
     error->universe_all(FLERR,"fix ID to scaling is not defined");
  
   // Time scaling variable
-  t_sc = force->bnumeric(FLERR,arg[5]);  // <- total scaling steps
+  t_sc = force->bnumeric(FLERR,arg[5]);  // total scaling steps
   if (t_sc < 0)
-    error->all(FLERR,"Invalid dCCI command");
+    error->all(FLERR,"Invalid dcci command");
 
   if (strcmp(arg[6],"temp") == 0) {
     dcci_flag = 0;
     T_start = force->numeric(FLERR,arg[7]);
     T_end = force->numeric(FLERR,arg[8]);
     if (T_start == T_end) error->all(FLERR,"Illegal dcci command");
-    lambda_final = T_start/T_end;
+    lambda_final = T_start/T_end; // end lambda value
+    sf = 2;
   } else if (strcmp(arg[6],"press") == 0) {
     dcci_flag = 1;
-    P_start = force->numeric(FLERR,arg[7]);
-    P_end = force->numeric(FLERR,arg[8]);
+    P_start = force->numeric(FLERR,arg[7]); // initial external pressure
+    P_end = force->numeric(FLERR,arg[8]);   // end external pressure
     if (P_start == P_end) error->all(FLERR,"Illegal dcci command");
     sf = 1;
   } else error->all(FLERR,"Illegal dcci command");
-  
-  // scaling parameter
-  //lambda_initial = force->numeric(FLERR,arg[4]); // <- intial lambda value
-  //lambda_final = force->numeric(FLERR,arg[5]);  // <- final lambda value
+ 
+  atomic_flag  = atom->molecular;
 
-  //if ((lambda_initial <= 0.0) || (lambda_final <= 0.0))
-  //  error->all(FLERR,"Invalid dCCI command");
-
-  // choose scaling function
-  if (narg > 9 && dcci_flag == 0) {
-    if (strcmp(arg[9], "function") == 0) sf = force->inumeric(FLERR,arg[10]);
-    else error->all(FLERR,"Illegal dCCI scaling function");
-    if ((sf!=1) && (sf!=2))
-      error->all(FLERR,"Illegal dCCI scaling function");
-  } else if (narg > 9 && dcci_flag == 1) error->all(FLERR,"Illegal dCCI command"); 
+  if (atomic_flag != 0) 
+    error->all(FLERR,"The dcci command is apply only to atomic system"); 
 
   // dCCI must be appropriate for temperature and pressure control,
   // i.e. it needs to provide a working Fix::reset_pressure() and must also
-  // change the volume. This currently only applies to fix npt and
-  // fix rigid/npt variants
+  // change the volume. This currently only applies to fix npt and fix nph 
 
   if ((strncmp(modify->fix[whichfix]->style,"npt",3) != 0)
-      && (strncmp(modify->fix[whichfix]->style,"rigid/npt",9) != 0)
       && (strncmp(modify->fix[whichfix]->style,"nph",3) != 0))
-    error->universe_all(FLERR,"controling of temperature and pressure fix is not supported");
+    error->universe_all(FLERR,"controling of pressure fix is not supported");
 
   // setup for long tempering run
 
@@ -155,37 +158,32 @@ void DCCI::command(int narg, char **arg)
   iworld = universe->iworld;
   nktv2p = force->nktv2p;
 
-  //printf("me %i iworld %i me_universe %i nworlds %i\n",me,iworld,me_universe,nworlds);
-
   // pe_compute = ptr to thermo_pe compute
   // notify compute it will be called at first swap
 
   int id = modify->find_compute("thermo_pe");
   if (id < 0) error->all(FLERR,"dcci could not find thermo_pe compute");
   Compute *pe_compute = modify->compute[id];
-  pe_compute->addstep(update->ntimestep+1);  // <- compute the potential energy for each step
+  pe_compute->addstep(update->ntimestep+1);  // compute the potential energy of the system for each step
 
-  // create MPI communicator for root proc from each world
 
   int color;
-  if (me == 0) color = 0;   // <- father proc for each world i
-  else color = 1;           // <- child proc for each world i
-  MPI_Comm_split(universe->uworld,color,0,&roots); // <- roots is the communicator word between father proc of each world
-
-  // world2root[i] = global proc that is root proc of world i
+  if (me == 0) color = 0;  
+  else color = 1;         
+  MPI_Comm_split(universe->uworld,color,0,&roots); 
 
   world2root = new int[nworlds];
   if (me == 0)
-    MPI_Allgather(&me_universe,1,MPI_INT,world2root,1,MPI_INT,roots); // <- send the id's of father proc for each father proc 
-  MPI_Bcast(world2root,nworlds,MPI_INT,0,world); // <- root of entired worl send the id's father proc for both worlds
-
+    MPI_Allgather(&me_universe,1,MPI_INT,world2root,1,MPI_INT,roots); 
+  MPI_Bcast(world2root,nworlds,MPI_INT,0,world); 
+  
   // setup dcci runs
 
   double lambda_k,lambda_k_1,press_k,press_k_1,press_rs_k,press_rs_k_1;
-  lambda_k_1 = lambda_k = lambda; // <- step 0
+  lambda_k_1 = lambda_k = lambda; 
   press_k_1 = press_k = Pcoex;
   press_rs_k_1 = press_rs_k = Pcoex_rs = Pcoex;
-  
+
   int nlocal = atom->nlocal;
   int natoms;
   double pe;
@@ -204,18 +202,18 @@ void DCCI::command(int narg, char **arg)
 
   NATOMS = new int[nworlds];
   if (me == 0)
-    MPI_Allgather(&natoms,1,MPI_INT,NATOMS,1,MPI_INT,roots); // <- send the id's of father proc for each father proc 
-  MPI_Bcast(NATOMS,nworlds,MPI_INT,0,world); // <- root of entired worl send the id's father proc for both worlds
+    MPI_Allgather(&natoms,1,MPI_INT,NATOMS,1,MPI_INT,roots); 
+  MPI_Bcast(NATOMS,nworlds,MPI_INT,0,world); 
 
   PE = new double[nworlds];
   if (me == 0)
-    MPI_Allgather(&pe,1,MPI_DOUBLE,PE,1,MPI_DOUBLE,roots); // <- send the id's of father proc for each father proc 
-  MPI_Bcast(PE,nworlds,MPI_DOUBLE,0,world); // <- root of entired worl send the id's father proc for both worlds
+    MPI_Allgather(&pe,1,MPI_DOUBLE,PE,1,MPI_DOUBLE,roots); 
+  MPI_Bcast(PE,nworlds,MPI_DOUBLE,0,world); 
 
   VOL = new double[nworlds];
   if (me == 0)
-    MPI_Allgather(&vol,1,MPI_DOUBLE,VOL,1,MPI_DOUBLE,roots); // <- send the id's of father proc for each father proc 
-  MPI_Bcast(VOL,nworlds,MPI_DOUBLE,0,world); // <- root of entired worl send the id's father proc for both worlds
+    MPI_Allgather(&vol,1,MPI_DOUBLE,VOL,1,MPI_DOUBLE,roots); 
+  MPI_Bcast(VOL,nworlds,MPI_DOUBLE,0,world); 
  
   double du,dv;
 
@@ -223,20 +221,20 @@ void DCCI::command(int narg, char **arg)
   dv = (VOL[0]/NATOMS[0] - VOL[1]/NATOMS[1]);
 
   if (me_universe == 0 && universe->uscreen)
-    fprintf(universe->uscreen,"Setting dCCI ...\n");
+    fprintf(universe->uscreen,"Setting dcci ...\n");
 
   update->integrate->setup(1);
 
   if (me_universe == 0) {
     if (universe->uscreen) {
-      fprintf(universe->uscreen,"Step  Tcoex  Pcoex  lambda Prs pe1  pe2  vol1  vol2");
+      fprintf(universe->uscreen,"Step  Tcoex  Pcoex  lambda Pcoex_rs pe1  pe2  vol1  vol2");
       fprintf(universe->uscreen,"\n");
     }
     if (universe->ulogfile) {
-      fprintf(universe->ulogfile,"Step  Tcoex  Pcoex  lambda Prs pe1  pe2  vol1  vol2");
+      fprintf(universe->ulogfile,"Step  Tcoex  Pcoex  lambda Pcoex_rs pe1  pe2  vol1  vol2");
       fprintf(universe->ulogfile,"\n");
     }
-    print_status(); //<- step Tcoex Pcoex lambda U1 U2 V1 V2
+    print_status(); 
   }
 
   double ts = update->ntimestep + 1 - update->beginstep;
@@ -249,10 +247,9 @@ void DCCI::command(int narg, char **arg)
     press_rs_k_1 = press_rs_k - (lambda_k_1 - lambda_k)*du/dv*nktv2p;   
     press_k_1 = press_rs_k_1 / lambda_k_1;
   } else if (dcci_flag == 1) {
-    press_k_1 = scaling_function(P_start,P_end,ts); // <- coexistence pressure
+    press_k_1 = scaling_function(P_start,P_end,ts); 
     lambda_k_1 = lambda_k * (1.0 + (press_k/(du/dv*nktv2p))) / (1.0 + (press_k_1/(du/dv*nktv2p)));
-    press_rs_k_1 = lambda_k_1 * press_k_1;
-    //lambda_k_1 -= (press_k_1 - press_k)/(du/dv*nktv2p); //<- old
+    press_rs_k_1 = lambda_k_1 * press_k_1; 
   }
 
   timer->init();
@@ -277,12 +274,12 @@ void DCCI::command(int narg, char **arg)
     double vol = (boxhix - boxlox)*(boxhiy - boxloy)*(boxhiz - boxloz);
 
     if (me == 0)
-      MPI_Allgather(&pe,1,MPI_DOUBLE,PE,1,MPI_DOUBLE,roots); // <- send the id's of father proc for each father proc 
-    MPI_Bcast(PE,nworlds,MPI_DOUBLE,0,world); // <- root of entired worl send the id's father proc for both worlds
+      MPI_Allgather(&pe,1,MPI_DOUBLE,PE,1,MPI_DOUBLE,roots); 
+    MPI_Bcast(PE,nworlds,MPI_DOUBLE,0,world); 
 
     if (me == 0)
-      MPI_Allgather(&vol,1,MPI_DOUBLE,VOL,1,MPI_DOUBLE,roots); // <- send the id's of father proc for each father proc 
-    MPI_Bcast(VOL,nworlds,MPI_DOUBLE,0,world); // <- root of entired worl send the id's father proc for both worlds
+      MPI_Allgather(&vol,1,MPI_DOUBLE,VOL,1,MPI_DOUBLE,roots); 
+    MPI_Bcast(VOL,nworlds,MPI_DOUBLE,0,world); 
 
     lambda = lambda_k_1;
     Pcoex = press_k_1;
@@ -343,13 +340,12 @@ void DCCI::print_status()
 }
 
 /* ----------------------------------------------------------------------
-   scaling function
+   scaling functions
 ------------------------------------------------------------------------- */
 
 double DCCI::scaling_function(double vi, double vf, double t)
 {
-  if (sf == 2) return vi / (1 + t * (vi/vf - 1));
-  // Default option is sf = 1.
-  return vi + (vf - vi) * t;
+  if (sf == 2) return vi / (1 + t * (vi/vf - 1)); // <- for control of temperature
+  return vi + (vf - vi) * t; // <- for control of pressure
 }
 
