@@ -75,6 +75,9 @@ If the scripts ran successfully you will obtain in the `log.lammps` file and abb
   <img src="https://github.com/samuelcajahuaringa/dCCIforLAMMPS/blob/master/dcci_lj.png" width="600"/>
 </p>
 
+An extended analysis of these kind of simulations apply for the silicon phase diagram,  will be found in:
+["Nonequilibrium Free-energy calculation of Phase-Boundaries using LAMMPS"
+Samuel Cajahuaringa and Alex Antonelli](https://arxiv.org/abs/2103.10449)
 
 Current compatibility:
 --------------
