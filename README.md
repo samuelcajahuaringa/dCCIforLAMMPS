@@ -9,7 +9,7 @@ Samuel Cajahuaringa and Alex Antonelli](https://arxiv.org/abs/2103.10449)
 ---------------
 [`doc`](doc): This directory contains an updated user manual.
 
-[`examples`](examples): This directory contains input scripts to run MD simulations.
+[`example`](example): This directory contains input scripts to run MD simulations.
 
 source codes: The main directory contains our LAMMPS source codes.
 
@@ -50,7 +50,12 @@ NOTE: Steps i and ii are necessary to install the required packages to reproduce
 
 How to use these codes?
 --------------
-Instructions of how to use these codes can be found inside each LAMMPS input script in the [`examples`](examples) directory and in our [paper](https://).
+Instructions of how to use these codes can be found inside each LAMMPS input script in the [`example`](example) directory and in our [paper](https://).
+
+Example: Lenard-Jones solid-liquid phase boundaries
+--------------
+Inside the [`example`](example) directory of this repository you should find scripts for simulations to compute the coexistence line between the fcc and liquid phases for the Lenard-Jones system. 
+
 
 Current compatibility:
 --------------
