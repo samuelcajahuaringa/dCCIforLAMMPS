@@ -71,10 +71,8 @@ mpirun -np 2 lmp_machine -partition 2x1 -in in.lammps
 ```
 If the scripts ran successfully you will obtain in the `log.lammps` file and abble to compare with the coexistence points of the file [`lj_solid_liquid_coexistence_line.dat`](example/lj_solid_liquid_coexistence_line.dat) to obtain the following results:
 
-![sad](https://github.com/samuelcajahuaringa/dCCIforLAMMPS/blob/master/dcci_lj.png)
-
 <p align="center">
-  <img src="https://github.com/samuelcajahuaringa/dCCIforLAMMPS/blob/master/dcci_lj.png" width="400"/>
+  <img src="https://github.com/samuelcajahuaringa/dCCIforLAMMPS/blob/master/dcci_lj.png" width="600"/>
 </p>
 
 
