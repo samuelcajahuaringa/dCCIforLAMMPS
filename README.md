@@ -29,16 +29,14 @@ How to install?
 --------------
 To install these source codes, please follow the steps below:
 
-1) Go to LAMMPS webpage (https://lammps.sandia.gov/download.html) and download the source code at your local machine.
-
-2) Clone this repository to a subdirectory named `USER-DCCI` inside the `src/` directory of your LAMMPS installation:
+1) Clone this repository to a subdirectory named `USER-DCCI` inside the `src/` directory of your LAMMPS installation:
 ```
 cd <your-local-lammps>/src/
 git clone https://github.com/samuelcajahuaringa/dCCIforLAMMPS.git USER-DCCI
 ```
 WARNING: The next step will overwrite some native source codes in your src folder. However, our source codes have compatibility with old versions. Make a backup of your src folder if you want.
 
-3) Choose some machine file (e.g. Makefile.mpi) and build LAMMPS using the following commands:
+2) Choose some machine file (e.g. Makefile.mpi) and build LAMMPS using the following commands:
 
 i) make yes-user-dcci
 
@@ -46,7 +44,7 @@ ii) make mpi
 
 NOTE: Steps i and ii are necessary to install the required packages to reproduce the results presented in our [paper]().
 
-4) If LAMMPS was successully built, an executable called "lmp_mpi" will be created in the src directory. Otherwise, an error message is reported. For futher details, please visit the ["Build LAMMPS"](https://lammps.sandia.gov/doc/Build.html) section on user documentation.
+3) If LAMMPS was successully built, an executable called "lmp_mpi" will be created in the src directory. Otherwise, an error message is reported. For futher details, please visit the ["Build LAMMPS"](https://lammps.sandia.gov/doc/Build.html) section on user documentation.
 
 How to use these codes?
 --------------
@@ -67,7 +65,7 @@ Inside the [`example`](example) directory of this repository you should find scr
 #### Running the example scripts
 From the [`example`](example/) directory use the following command to run the dcci simulations: 
 ```
-mpirun -np 2 lmp_machine -partition 2x1 -in in.lammps
+mpirun -np 2 lmp_mpi -partition 2x1 -in in.lammps
 ```
 If the scripts ran successfully you will obtain in the `log.lammps` file and abble to compare with the coexistence points of the file [`lj_solid_liquid_coexistence_line.dat`](example/lj_solid_liquid_coexistence_line.dat) to obtain the following results:
 
@@ -83,7 +81,7 @@ Current compatibility:
 --------------
 lammps-22Aug18
 
-Contact:
+Author & Contact:
 --------------
 Samuel Cajahuaringa - samuelcajahuaringa@gmail.com
 
