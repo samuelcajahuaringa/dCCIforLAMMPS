@@ -1,0 +1,70 @@
+# LAMMPS script to calculated the lattice parameter of silicon diamond at 400 K and zero pressure
+# silicon diamond at 400 K and 0.0 bars
+variable T        equal 400            # simulation temperature 
+variable P        equal 0.0            # simulation pressure
+variable a0       equal 5.4394754      # numbers of particiles
+variable m        equal 28.0855        # mass particles    
+variable dt       equal 0.001
+variable Tdamp    equal 100*${dt}
+variable Pdamp    equal 1000*${dt}
+variable t_run    equal 1000000
+variable t_equil  equal 4000000
+variable seed     equal 1289
+variable n        equal 10
+
+units	          metal
+boundary          p p p 
+atom_style	  atomic
+
+lattice diamond   ${a0}
+region	          box block 0 ${n} 0 ${n} 0 ${n} units lattice
+create_box        1   box  
+create_atoms      1   box 
+
+pair_style	  sw
+pair_coeff        * * Si.sw Si 
+mass              1   ${m}
+neighbor	  1.0 bin  
+
+neigh_modify delay 0 
+                               
+# Compute temperature using center-of-mass coordinates.
+compute           c1 all temp/com
+
+# Find center-of-mass coordinates.
+variable          xcm equal xcm(all,x)
+variable          ycm equal xcm(all,y)
+variable          zcm equal xcm(all,z)
+
+# Minimize using cg and relax the box using zero pressure.
+fix               f0 all box/relax iso 0.0 fixedpoint ${xcm} ${ycm} ${zcm}
+minimize          0.0 1.0e-8 1000 100000
+unfix             f0
+
+variable          rnd equal round(random(0,99999,${seed}))
+velocity all create ${T} ${rnd} mom yes rot yes dist gaussian
+# Thermostat and barostat.
+fix               f1 all nph iso ${P} ${P} ${Pdamp} fixedpoint ${xcm} ${ycm} ${zcm}
+fix               f2 all langevin ${T} ${T} ${Tdamp} ${rnd} zero yes
+variable          rnd equal round(random(0,999999,0)) # Generates new rnd #.
+fix_modify        f1 temp c1
+fix_modify        f2 temp c1
+
+#------------------------ Simulation & output setup ---------------------------#
+# Setup output varibles
+variable          step equal step
+variable          ax equal lx/${n}
+variable          pe equal pe/atoms
+variable          press equal c_thermo_press
+
+thermo_style      custom step pe
+thermo            0
+
+# Equilibrating in NPT Ensemble.
+run               ${t_run}
+
+# Measuring.
+fix               f4 all print 100 "${step} ${ax} ${pe} ${press}" screen no &
+                  file thermo_${T}K.dat title "# step ax pe press"
+run               ${t_equil}
+

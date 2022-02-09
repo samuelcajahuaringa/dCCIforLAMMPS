@@ -1,0 +1,5 @@
+files:
+/density: LAMMPS scripts to calculted the density of the silicon liquid phase
+/ufm: LAMMPS scripts to calculted the free energy of the liquid phase by the adiabatic switching method
+/as-pressure: LAMMPS scripts to calculate the free energy as function of the temperature by the adiabatic switching method
+/reversible-scaling: LAMMPS scripts to calculted the free energy of function of temperature by the reversible scaling method

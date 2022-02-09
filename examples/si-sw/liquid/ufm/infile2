@@ -1,0 +1,91 @@
+
+########################################     Atomic setup     ##########################################
+# Defines the style of atoms, units and boundary conditions.
+  atom_style        atomic 
+  units             metal
+  boundary          p p p
+    
+# Read atoms positions, velocities and box parameters.
+  read_data         liquid_si_sw_${T}K.lammps 
+
+  neigh_modify      delay 0
+
+# Define SW and UFM potentials parameters.
+  pair_style        hybrid/overlay sw ufm ${rc}
+  pair_coeff        * * sw Si.sw Si
+  pair_coeff        * * ufm ${eps} ${sig}
+  mass              1 28.0855
+
+  timestep          ${dt}
+#------------------------------------------------------------------------------------------------------#
+
+
+################################     Fixes, computes and constraints     ###############################
+# Integrator & thermostat.
+  fix               f1 all nve
+  fix               f2 all langevin $T $T ${Tdamp} ${rnd}
+  variable          rnd equal round(random(0,999999,0))     # Generates new rnd #.
+
+# Compute the potential energy of each pair style.
+  compute           c1 all pair sw
+  compute           c2 all pair ufm
+#------------------------------------------------------------------------------------------------------#
+
+
+##########################################     Output setup     ########################################
+# Output variables.
+  variable          step equal step
+  variable          dU equal c_c1-c_c2              # Driving-force during NEHI procedure.
+
+# Thermo output.
+  thermo_style      custom step v_dU
+  thermo            0
+#------------------------------------------------------------------------------------------------------#
+
+
+##########################################     Run simulation     ######################################
+# Turn UF potential off (completely) to equilibrate the SW potential.
+  variable          zero equal 0
+  fix               f0 all adapt 0 pair ufm fscale * * v_zero
+  run               0
+  unfix             f0
+
+# Equilibrate the fluid interacting by SW potential and switch to UF potential (Forward realization).
+  run               ${t_eq}
+
+  print             "${dU} ${li}" file t_switch${t_sw}/forward_${N_sim}.dat
+  variable          lambda_sw equal ramp(${li},${lf})
+  fix               f3 all adapt 1 pair sw fscale * * v_lambda_sw
+  variable          lambda_ufm equal ramp(${lf},${li})
+  fix               f4 all adapt 1 pair ufm fscale * * v_lambda_ufm
+  fix               f5 all print 1 "${dU} ${lambda_sw}" &
+                    title "# dU lambda" screen no       &
+                    append t_switch${t_sw}/forward_${N_sim}.dat
+
+  run               ${t_sw}
+
+  unfix             f3
+  unfix             f4
+  unfix             f5
+
+# Equilibrate the fluid interacting by UF potential and switch to SW potential (Backward realization).
+  run               ${t_eq}
+
+  print             "${dU} ${lf}" file t_switch${t_sw}/backward_${N_sim}.dat
+  variable          lambda_sw equal ramp(${lf},${li})
+  fix               f3 all adapt 1 pair sw fscale * * v_lambda_sw
+  variable          lambda_ufm equal ramp(${li},${lf})
+  fix               f4 all adapt 1 pair ufm fscale * * v_lambda_ufm
+  fix               f5 all print 1 "${dU} ${lambda_sw}" &
+                    title "# dU lambda" screen no       &
+                    append t_switch${t_sw}/backward_${N_sim}.dat
+
+  run               ${t_sw}
+
+  unfix             f3
+  unfix             f4
+  unfix             f5
+#------------------------------------------------------------------------------------------------------#
+
+
+##########################################     Loop procedure     ######################################

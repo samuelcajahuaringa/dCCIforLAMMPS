@@ -1,0 +1,80 @@
+# lammps script to calculated the density of 
+# Silicon liquid at T=2200 K and P=0.0 bars
+variable T        equal 2200            # simulation temperature 
+variable P        equal 0.0
+variable N        equal 1000            # numbers of particiles
+variable m        equal 28.0855         # mass particles    
+variable L        equal 26.74860176 # 26.7490
+variable dt       equal 0.001
+variable Tdamp    equal 100*${dt}
+variable Pdamp    equal 1000*${dt}
+variable t_run    equal 1000000
+variable t_equil  equal 1000000
+variable seed     equal 987321
+
+units		  metal 
+boundary          p p p
+atom_style        atomic
+
+read_data         liquid_sw_T2200K.lammps
+
+replicate         2 2 2
+
+pair_style        sw
+pair_coeff        * * Si.sw Si
+mass              1 ${m} 
+
+neighbor          1.0 bin
+neigh_modify delay 10 every 1 check yes
+
+min_style cg
+minimize 1e-25 1e-20 10000 10000
+
+variable          rnd equal round(random(0,99999,${seed}))
+velocity all create ${T} ${rnd} mom yes rot yes dist gaussian
+
+timestep          ${dt}
+
+reset_timestep    0
+
+# Compute temperature using center-of-mass coordinates.
+variable          rnd equal round(random(0,99999,${seed}))
+
+compute           c1 all temp/com
+fix f1 all nve
+fix f2 all langevin ${T} ${T} ${Tdamp} ${rnd} zero yes
+thermo_style custom step pe ke etotal temp press lx
+thermo            1000
+thermo_modify flush yes norm no
+fix_modify        f2 temp c1
+run               ${t_run}
+unfix f1
+unfix f2
+
+# Find center-of-mass coordinates.
+variable          xcm equal xcm(all,x)
+variable          ycm equal xcm(all,y)
+variable          zcm equal xcm(all,z)
+
+variable          rnd equal round(random(0,99999,${seed}))
+# Thermostat and barostat.
+fix               f1 all nph aniso ${P} ${P} ${Pdamp} fixedpoint ${xcm} ${ycm} ${zcm}
+fix               f2 all langevin ${T} ${T} ${Tdamp} ${rnd} zero yes
+fix_modify        f1 temp c1
+fix_modify        f2 temp c1
+run               ${t_run}
+
+reset_timestep    0
+
+# Setup output varibles
+variable          step equal step
+variable          L equal lx
+variable          pe equal pe/atoms
+variable          press equal c_thermo_press
+
+# Measuring.
+fix               f4 all print 100 "${step} ${L} ${pe} ${press}" screen no &
+                  file thermo_${T}K.dat title "# step L pe press"
+run               ${t_equil}
+
+write_data        liquid_si_w_${T}K.lammps

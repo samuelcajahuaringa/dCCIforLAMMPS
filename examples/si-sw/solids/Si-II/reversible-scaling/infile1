@@ -1,0 +1,19 @@
+# Reversible scaling path to calculate the Silicon Absolute Free-Energy as function of temperature
+variable Ti       equal 400
+variable Tf       equal 1600
+variable P        equal 150000.0        
+variable a        equal 6.76395
+variable c        equal 2.84864
+variable r        equal v_c/v_a
+variable nx       equal 7
+variable ny       equal 7
+variable nz       equal 17
+variable m        equal 28.0855
+variable dt       equal 0.001
+variable Tdamp    equal 100*${dt}
+variable Pdamp    equal 1000*${dt}
+variable t_eq     equal 100000
+variable t_sc     equal 1000000
+variable seed     equal 7155
+variable N_sim    equal 10
+

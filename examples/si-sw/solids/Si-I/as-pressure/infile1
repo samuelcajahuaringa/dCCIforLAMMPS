@@ -1,0 +1,14 @@
+# adiabatic switching path to calculate the Free-Energy as function of pressure
+variable T           equal 400            
+variable Pi          equal 0.0
+variable Pf          equal 150000.0            
+variable dt          equal 0.001
+variable Tdamp       equal 100*${dt}
+variable Pdamp       equal 1000*${dt}
+variable t_eq        equal 100000
+variable t_sw        equal 5000
+variable seed        equal 24842
+variable N_sim       equal 10
+variable a           equal 5.43947
+variable m           equal 28.0855           
+

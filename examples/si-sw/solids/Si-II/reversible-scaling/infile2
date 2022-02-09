@@ -1,0 +1,77 @@
+#
+units             metal
+boundary          p p p
+atom_style        atomic
+
+lattice           custom ${a}             &
+                  a1 1.0 0.0 0.0          &
+                  a2 0.0 1.0 0.0          &
+                  a3 0.0 0.0 ${r}         &
+                  basis 0.0 0.0 0.0       &
+                  basis 0.0 0.5 0.5       &
+                  basis 0.5 0.0 0.5       &
+                  basis 0.5 0.5 0.0       &
+                  basis 0.25 0.25 0.25    &
+                  basis 0.25 0.75 0.75    &
+                  basis 0.75 0.25 0.75    &
+                  basis 0.75 0.75 0.25
+
+region            box block 0 ${nx} 0 ${ny} 0 ${nz} units lattice
+create_box        1   box
+create_atoms      1   box
+
+pair_style        sw
+pair_coeff        * * Si.sw Si
+mass              1   ${m}
+
+neighbor          1.0 bin
+neigh_modify delay 0
+
+min_style cg
+minimize 1e-25 1e-20 10000 10000
+
+velocity all create ${Ti} ${seed} mom yes rot yes dist gaussian  
+
+timestep          ${dt}
+reset_timestep    0
+
+# thermostat 
+thermo_style     custom step pe vol
+thermo           0
+
+variable         rnd equal round(random(0,999,${seed}))
+ 
+# Find center-of-mass coordinates.
+variable         xcm equal xcm(all,x)
+variable         ycm equal xcm(all,y)
+variable         zcm equal xcm(all,z)
+
+variable         lambda equal 1.0
+fix              f1 all nph aniso ${P} ${P} ${Pdamp} fixedpoint ${xcm} ${ycm} ${zcm} ners v_lambda
+fix              f2 all langevin ${Ti} ${Ti} ${Tdamp} ${rnd} zero yes
+# Compute temperature using center-of-mass coordinates.
+compute          c1 all temp/com
+fix_modify       f1 temp c1
+fix_modify       f2 temp c1
+
+run              ${t_eq}
+#Forkward integration. 
+print            "$(pe/atoms) $(vol/atoms) 1" file forward_rs_${N_sim}.dat
+variable         lambda equal 1/(1+(elapsed/${t_sc})*(${Tf}/${Ti}-1))
+fix              f3 all adapt 1 pair sw fscale 1 1 v_lambda
+fix              f4 all print 1 "$(pe/atoms) $(vol/atoms) ${lambda}" screen no &
+                 append forward_rs_${N_sim}.dat title "# pe vol lambda"
+run              ${t_sc}
+unfix            f3
+unfix            f4
+
+variable         lambda equal v_Ti/v_Tf
+run              ${t_eq}
+# Backward integration. 
+print            "$(pe/atoms) $(vol/atoms) $(v_Ti/v_Tf)" file backward_rs_${N_sim}.dat
+variable         lambda equal 1/(1+(1-(elapsed/${t_sc}))*(${Tf}/${Ti}-1))
+fix              f3 all adapt 1 pair sw fscale 1 1 v_lambda
+fix              f4 all print 1 "$(pe/atoms) $(vol/atoms) ${lambda}" screen no &
+                 append backward_rs_${N_sim}.dat title "# pe vol lambda"
+run              ${t_sc}
+

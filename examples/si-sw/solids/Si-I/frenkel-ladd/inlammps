@@ -1,0 +1,99 @@
+# Frenkel-Ladd path to calculate the Silicon Absolute Helmholtz Free-Energy
+
+# solid silicon diamond lattice at T=800 K and P=0.0 bars
+variable a0       equal 5.43947            # lattice parameter
+
+# simulations variables
+variable T        equal 400             # simulation temperature 
+variable m        equal 28.0855             # mass particles    
+# time variables 
+variable dt       equal 0.001            # time step
+variable Tdamp    equal 100*${dt}   # damp parameter of thermostat
+variable t_eq     equal 100000          # equilibration time
+variable t_sw     equal 5000000    # switching time         
+
+# Thermodynamic integration variables.
+variable func     equal 2              # Integration function.
+variable k        equal 6.113             # elastic constant (eV/Angstrom^2)
+variable seed     equal 18935
+# Adiabatic switching parameters.
+variable  li      equal 0.0            # initial lambda
+variable  lf      equal 1.0            # final lambda
+variable  N_sim   equal 10
+
+#
+units             metal
+boundary          p p p
+atom_style        atomic
+
+lattice           diamond  ${a0}
+
+region            box block 0 10 0 10 0 10
+create_box        1   box
+create_atoms      1   box
+
+
+pair_style        sw
+pair_coeff        * * Si.sw Si
+mass              1   ${m}
+
+neighbor          1.0 bin
+neigh_modify delay 0 
+
+min_style cg
+minimize 1e-25 1e-20 10000 10000
+
+timestep          ${dt}
+ 
+reset_timestep    0
+
+#----------------------- Fixes, computes, & constrains ------------------------#
+# Compute temperature using center-of-mass coordinates.
+compute           c1 all temp/com
+
+# Thermostat and Frenkel-Ladd fix.
+fix               f1 all nve
+fix               f2 all ti/spring ${k} ${t_sw} ${t_eq} function ${func}
+fix               f3 all langevin $T $T ${Tdamp} ${seed} zero yes
+fix_modify        f3 temp c1
+#------------------------------------------------------------------------------#
+
+#------------------------ Simulation & output setup ---------------------------#
+# Setup output varibles
+variable          step    equal step
+variable          dU      equal pe-f_f2
+variable          lambda  equal f_f2[1]
+
+# Redefine simulation time to capture first and last steps on output files.
+# Notice that this does not affect the switching time.
+variable         t_eq_run equal ${t_eq}-1
+variable         t_sw_run equal ${t_sw}+1
+
+# Thermo output.
+thermo_style  custom step pe v_dU
+thermo_modify flush yes
+thermo        0
+#------------------------------------------------------------------------------#
+
+#------------------------- Running simulation ---------------------------------#
+# Initial temperature to accelerate equilibration.
+variable         rnd equal round(random(0,999,${seed}))
+variable         T0 equal 2*${T}
+velocity         all create ${T0} ${rnd} mom yes rot yes dist gaussian
+
+# Forward integration.
+run              ${t_eq_run}
+fix              f4 all print 1 "${dU} ${lambda}" screen no title "#dU [eV] lambda" & 
+                 file t_switch${t_sw}/forward_${T}K_${N_sim}.dat 
+run              ${t_sw_run}
+unfix            f4
+
+# Backward integration. 
+run              ${t_eq_run}
+fix              f4 all print 1 "${dU} ${lambda}" screen no title "#dU [eV] lambda" &
+                 file t_switch${t_sw}/backward_${T}K_${N_sim}.dat 
+run              ${t_sw_run}
+unfix            f1
+unfix            f2
+unfix            f3
+unfix            f4

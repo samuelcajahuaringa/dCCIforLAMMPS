@@ -1,0 +1,3 @@
+/coexistence: LAMMPS scripts to calculted the coexistence boundaries
+/solid: LAMMPS scripts to calculted the free energy of solids (Si-I and Si-II) phases
+/liquid: LAMMPS scripts to calculted the free energy of liquid phases

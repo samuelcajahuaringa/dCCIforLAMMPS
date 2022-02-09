@@ -1,0 +1,23 @@
+# Frenkel-Ladd path to calculate the Silicon Absolute Helmholtz Free-Energy
+
+# solid silicon diamond lattice at T=800 K and P=0.0 bars
+variable a0       equal 5.43947            # lattice parameter
+
+# simulations variables
+variable T        equal 400             # simulation temperature 
+variable m        equal 28.0855             # mass particles    
+# time variables 
+variable dt       equal 0.001            # time step
+variable Tdamp    equal 100*${dt}   # damp parameter of thermostat
+variable t_eq     equal 100000          # equilibration time
+variable t_sw     equal 5000000    # switching time         
+
+# Thermodynamic integration variables.
+variable func     equal 2              # Integration function.
+variable k        equal 6.113             # elastic constant (eV/Angstrom^2)
+variable seed     equal 18935
+# Adiabatic switching parameters.
+variable  li      equal 0.0            # initial lambda
+variable  lf      equal 1.0            # final lambda
+variable  N_sim   equal 10
+

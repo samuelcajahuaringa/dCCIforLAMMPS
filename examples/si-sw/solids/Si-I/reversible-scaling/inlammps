@@ -1,0 +1,84 @@
+# Reversible scaling path to calculate the Silicon Absolute Free-Energy as function of temperature
+variable Ti       equal 400
+variable Tf       equal 1400
+variable P        equal 94000.0        
+variable a        equal 5.29024
+variable nx       equal 10 
+variable ny       equal 10
+variable nz       equal 10
+variable m        equal 28.0855
+variable dt       equal 0.001
+variable Tdamp    equal 100*${dt}
+variable Pdamp    equal 1000*${dt}
+variable t_eq     equal 100000
+variable t_sc     equal 1000000
+variable seed     equal 11830
+variable N_sim    equal 10
+
+#
+units            metal
+boundary         p p p
+atom_style       atomic
+
+lattice          diamond ${a} 
+
+region           box block 0 ${nx} 0 ${ny} 0 ${nz} units lattice
+create_box       1   box
+create_atoms     1   box
+
+pair_style       sw
+pair_coeff       * * Si.sw Si
+mass             1   ${m}
+
+neighbor         1.0 bin
+neigh_modify delay 0
+
+min_style cg
+minimize 1e-25 1e-20 10000 10000
+
+variable         rnd equal round(random(0,999,${seed}))
+velocity all create ${Ti} ${rnd} mom yes rot yes dist gaussian  
+
+timestep         ${dt}
+reset_timestep   0
+
+# thermostat 
+thermo_style     custom step pe vol
+thermo           0
+
+variable         rnd equal round(random(0,999,${seed}))
+ 
+# Find center-of-mass coordinates.
+variable         xcm equal xcm(all,x)
+variable         ycm equal xcm(all,y)
+variable         zcm equal xcm(all,z)
+
+variable         lambda equal 1.0
+fix              f1 all nph aniso ${P} ${P} ${Pdamp} fixedpoint ${xcm} ${ycm} ${zcm} ners v_lambda
+fix              f2 all langevin ${Ti} ${Ti} ${Tdamp} ${rnd} zero yes
+# Compute temperature using center-of-mass coordinates.
+compute          c1 all temp/com
+fix_modify       f1 temp c1
+fix_modify       f2 temp c1
+
+run              ${t_eq}
+
+print            "$(pe/atoms) $(vol/atoms) 1" file forward_rs_${N_sim}.dat
+variable         lambda equal 1/(1+(elapsed/${t_sc})*(${Tf}/${Ti}-1))
+fix              f3 all adapt 1 pair sw fscale 1 1 v_lambda
+fix              f4 all print 1 "$(pe/atoms) $(vol/atoms) ${lambda}" screen no &
+                 append forward_rs_${N_sim}.dat title "# pe vol lambda"
+run              ${t_sc}
+unfix            f3
+unfix            f4
+
+variable         lambda equal v_Ti/v_Tf
+run              ${t_eq}
+# Backward integration. 
+print            "$(pe/atoms) $(vol/atoms) $(v_Ti/v_Tf)" file backward_rs_${N_sim}.dat
+variable         lambda equal 1/(1+(1-(elapsed/${t_sc}))*(${Tf}/${Ti}-1))
+fix              f3 all adapt 1 pair sw fscale 1 1 v_lambda
+fix              f4 all print 1 "$(pe/atoms) $(vol/atoms) ${lambda}" screen no &
+                 append backward_rs_${N_sim}.dat title "# pe vol lambda"
+run              ${t_sc}
+

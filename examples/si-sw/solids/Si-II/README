@@ -1,0 +1,5 @@
+/density: LAMMPS scripts to calculted the density of the silicon in the beta-tin phase
+/msd: LAMMPS scripts to calculted the mean squared displacement need to determined the elastic constant (see eq. 3.20)
+/frenkel-ladd: LAMMPS scripts to calculted the free energy of the solid phase (silicon in the betat-tin structure) by the adiabatic switching method
+/reversible-scaling: LAMMPS scripts to calculted the free energy of function of temperature by the reversible scaling method
+/as-pressure: LAMMPS scripts to calculated the free energy as function of the pressure by the adiabatic switching method

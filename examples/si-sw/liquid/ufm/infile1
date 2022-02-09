@@ -1,0 +1,25 @@
+# This script performs NEHI procedure to compute the Helmholtz free-energy of mW fluid. The reference system is the UFM.
+
+######################################     General Variables     #######################################
+# Initalizes random number generator.
+  variable          rnd      equal   11736
+
+# Initial definitions.
+  variable          T        equal   2200            # Simulation temperature (K).
+  variable          kB       equal   8.617343e-05   # Boltzmann constant (eV/K).
+  variable          p        equal   25             # UF p-parameter.
+  variable          eps      equal   ${T}*${kB}*${p}    # UF epsilon parameter (eV).
+  variable          sig      equal   2.0            # UF sigma parameter (Angs).
+  variable          rc       equal   5.0*${sig}     # UF cutoff radius (Angs).
+
+# Time variables.
+  variable          t_eq     equal   100000          # Equilibration steps.
+  variable          t_sw     equal   200000         # Switching steps.
+  variable          dt       equal   0.001          # Timestep (ps).
+  variable          Tdamp    equal   100*${dt}      # Damp parameter for the thermostat (ps).
+
+# Thermodynamic integration variables.
+  variable          li       equal   1.0            # Initial lambda.
+  variable          lf       equal   0.0            # Final lambda.
+  variable          N_sim    equal   10             # Number of independent simulations.
+

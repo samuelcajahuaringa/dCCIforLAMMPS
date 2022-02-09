@@ -1,0 +1,73 @@
+# LAMMPS script to calculated the mean squared displacement using the equilbrated volumen at 400 K and zero pressure
+# with the use of the equation 3.20 can be calculated the elastic constant using in the adiabatic switching process
+# silicon diamond at 400 K and 0.0 bars
+variable T        equal 400            # simulation temperature 
+variable P        equal 0.0            # simulation pressure
+variable a0       equal 5.43951        # numbers of particiles
+variable m        equal 28.0855        # mass particles    
+variable dt       equal 0.001
+variable Tdamp    equal 100*${dt}
+variable Pdamp    equal 1000*${dt}
+variable t_eq     equal 100000
+variable t_run    equal 1000000
+variable seed1    equal 7672
+variable seed2    equal 9445
+
+units             metal
+boundary          p p p
+atom_style        atomic
+
+lattice diamond   ${a0}
+region            box block 0 4 0 4 0 4
+create_box        1   box
+create_atoms      1   box
+
+#read_data         solid_sw_nvt.lammps 
+
+pair_style        sw
+pair_coeff        * * Si.sw Si
+mass              1 28.0855
+
+neighbor          1.0 bin
+neigh_modify delay 10 every 1 check yes
+
+min_style cg
+minimize 1e-25 1e-20 10000 10000
+
+write_data        crystal${T}K.dat
+
+timestep          ${dt}
+
+# Compute temperature using center-of-mass coordinates.
+compute           c1 all temp/com
+
+reset_timestep    0
+# thermostat  
+fix f1 all nve
+fix f2 all langevin ${T} ${T} ${Tdamp} 4689231
+fix_modify f2 temp c1
+
+# Setup output varibles
+variable          step equal step
+variable          pe   equal pe/atoms
+compute           msd  all msd com yes
+variable          msd  equal c_msd[4]
+
+thermo_style      custom step pe temp press
+thermo_modify flush yes norm no
+thermo            0
+
+# Equilibrating.
+fix               f4 all print 100 "${step} ${msd} ${pe}" screen no &
+                  file msd_eq_${T}.dat title "# step msd pe"
+run               ${t_eq}
+
+reset_timestep    0
+# Measuring.
+unfix             f4
+
+variable PRESS equal press
+fix f5 all ave/time 1000 1000 1000000 v_PRESS file pressure${T}K.dat
+fix               f4 all print 100 "${step} ${msd} ${pe}" screen no &
+                  file msd_run_${T}.dat title "# step msd pe"
+run               ${t_run}
