@@ -53,18 +53,7 @@ Instructions of how to use these codes can be found inside each LAMMPS input scr
 Example: Lennard-Jones solid-liquid phase boundaries
 --------------
 Inside the [`examples/lj`](examples/lj/) directory of this repository you should find scripts for simulations to compute the coexistence line between the solid fcc phase and the liquid phases for the Lennard-Jones system. 
-#### Scripts included
-[`in.dcci`](examples/lj/in.dcci): LAMMPS script to simulate 500 lennard-jones particles with each phase using the dcci method. 
 
-[`solid/phase.lammps`](examples/lj/solid/phase.lammps): data file of solid fcc phase containing information LAMMPS needs to run a simulation.
-
-[`liquid/phase.lammps`](examples/lj/liquid/phase.lammps): data file of liquid phase containing information LAMMPS needs to run a simulation.
-
-[`lj_solid_liquid_coexistence_line.dat`](examples/lj/lj_solid_liquid_coexistence_line.dat): coexistence points calculated by  R. Agrawal and D. A. Kofke, Mol. Phys. 85, 43-59 (1995).
-
-Example: silicon phase boundaries
---------------
-Inside the [`examples/si-sw/`](examples/si-sw/) directory of this repository you should find scripts for simulations to compute the phase diagram for silicon using the Stillinger-Weber potential.
 #### Scripts included
 [`in.dcci`](examples/lj/in.dcci): LAMMPS script to simulate 500 lennard-jones particles with each phase using the dcci method. 
 
@@ -85,9 +74,17 @@ If the scripts ran successfully you will obtain in the `log.lammps` file and abb
   <img src="https://github.com/samuelcajahuaringa/dCCIforLAMMPS/blob/master/dcci_lj.png" width="600"/>
 </p>
 
-An extended analysis of these kind of simulations apply for the silicon phase diagram,  will be found in:
-["Nonequilibrium Free-energy calculation of Phase-Boundaries using LAMMPS"
+Example: silicon phase boundaries
+--------------
+Inside the [`examples/si-sw/`](examples/si-sw/) directory of this repository you should find scripts for an extended analysis apply to compute the silicon phase diagram for silicon using the Stillinger-Weber potential, for more details review ["Nonequilibrium Free-energy calculation of Phase-Boundaries using LAMMPS"
 Samuel Cajahuaringa and Alex Antonelli](https://arxiv.org/abs/2103.10449)
+
+#### Scripts included
+[`coexistence`](examples/si-sw/coexistence/): LAMMPS script to calculate the coexistence lines of silicon for each phase using the dcci method.
+
+[`solids`](examples/si-sw/solids/): LAMMPS script to calculate the free energy of silicon cubic-diamond and beta-tin phases.
+
+[`liquid`](examples/si-sw/liquid/): LAMMPS script to calculate the free energy of silicon liquid phase.
 
 Current compatibility:
 --------------
