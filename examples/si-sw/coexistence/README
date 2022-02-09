@@ -1,0 +1,4 @@
+Si-I-liquid: LAMMPS script to calculate the phase boundaries between the silicon cubic diamond phase and the liquid phase
+Si-II-liquid: LAMMPS script to calculate the phase boundaries between the silicon beta-tin phase and the liquid phase
+Si-I-Si-II: LAMMPS script to calculate the phase boundaries between the silicon cubic diamond phase and the silicon beta-tin phase
+

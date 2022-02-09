@@ -1,0 +1,32 @@
+units             metal
+boundary          p p p
+atom_style        atomic
+
+read_data         ${phase}/phase.lammps
+
+pair_style        sw
+pair_coeff        * * Si.sw Si
+mass              1   ${m}
+
+neighbor          1.0 bin
+neigh_modify delay 0 every 1 
+
+timestep          ${dt}
+
+reset_timestep    0
+
+
+variable rnd equal round(random(0,999,${seed}))
+fix f1 all nph aniso ${Pcoex} ${Pcoex} ${Pdamp}
+fix f2 all langevin ${Tcoex} ${Tcoex} ${Tdamp} ${rnd} zero yes
+compute           c1 all temp/com
+fix_modify        f1 temp c1
+fix_modify        f2 temp c1
+run               ${t_eq}
+
+fix f3 all adapt/dcci ${lambda} pair sw fscale * *
+thermo_style custom step temp ke pe etotal press vol f_f3
+thermo            100
+thermo_modify flush yes
+dcci              ${Tcoex} ${Pcoex} ${lambda} f3 f1 ${t_sc} temp ${Ti} ${Tf}
+

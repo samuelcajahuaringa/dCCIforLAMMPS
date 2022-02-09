@@ -1,0 +1,16 @@
+# dyncamics Clausius-Clapeyron integration
+
+variable Tcoex    equal 400
+variable Pcoex    equal 131734.6
+variable phase    world Si-I Si-II
+variable m        equal 28.0855
+variable dt       equal 0.001
+variable Tdamp    equal 100*${dt}
+variable Pdamp    equal 1000*${dt}
+variable lambda   equal 1.0
+variable Ti       equal 400.0
+variable Tf       equal 1250.0 
+variable seed     equal 28083
+variable t_eq     equal 50000
+variable t_sc     equal 500000
+
