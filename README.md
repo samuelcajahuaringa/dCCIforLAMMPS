@@ -76,7 +76,7 @@ If the scripts ran successfully you will obtain in the `log.lammps` file and abb
 
 Example: silicon phase boundaries
 --------------
-Inside the [`examples/si-sw/`](examples/si-sw/) directory of this repository you should find scripts for an extended analysis apply to compute the silicon phase diagram for silicon using the Stillinger-Weber potential, for more details review ["Nonequilibrium Free-energy calculation of Phase-Boundaries using LAMMPS"
+Inside the [`examples/si-sw/`](examples/si-sw/) directory of this repository you should find scripts for an extended analysis apply to compute the silicon phase diagram using the Stillinger-Weber potential, for more details review ["Nonequilibrium Free-energy calculation of Phase-Boundaries using LAMMPS"
 Samuel Cajahuaringa and Alex Antonelli](https://arxiv.org/abs/2103.10449)
 
 #### Scripts included
