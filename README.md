@@ -9,7 +9,7 @@ Samuel Cajahuaringa and Alex Antonelli](https://arxiv.org/abs/2103.10449)
 ---------------
 [`doc`](doc): This directory contains an updated user manual.
 
-[`example`](example): This directory contains input scripts to run MD simulations.
+[`examples`](examples): This directory contains input scripts to run MD simulations.
 
 source codes: The main directory contains our LAMMPS source codes.
 
@@ -48,22 +48,34 @@ NOTE: Steps i and ii are necessary to install the required packages to reproduce
 
 How to use these codes?
 --------------
-Instructions of how to use these codes can be found inside each LAMMPS input script in the [`example`](example) directory and in our [paper](https://).
+Instructions of how to use these codes can be found inside each LAMMPS input script in the [`examples`](examples) directory and in our [paper](https://).
 
 Example: Lennard-Jones solid-liquid phase boundaries
 --------------
-Inside the [`example`](example) directory of this repository you should find scripts for simulations to compute the coexistence line between the solid fcc phase and the liquid phases for the Lennard-Jones system. 
+Inside the [`examples/lj`](examples/lj/) directory of this repository you should find scripts for simulations to compute the coexistence line between the solid fcc phase and the liquid phases for the Lennard-Jones system. 
 #### Scripts included
-[`in.dcci`](example/in.dcci): LAMMPS script to simulate 500 lennard-jones particles with each phase using the dcci method. 
+[`in.dcci`](examples/lj/in.dcci): LAMMPS script to simulate 500 lennard-jones particles with each phase using the dcci method. 
 
-[`solid/phase.lammps`](example/solid/phase.lammps): data file of solid fcc phase containing information LAMMPS needs to run a simulation.
+[`solid/phase.lammps`](examples/lj/solid/phase.lammps): data file of solid fcc phase containing information LAMMPS needs to run a simulation.
 
-[`liquid/phase.lammps`](example/liquid/phase.lammps): data file of liquid phase containing information LAMMPS needs to run a simulation.
+[`liquid/phase.lammps`](examples/lj/liquid/phase.lammps): data file of liquid phase containing information LAMMPS needs to run a simulation.
 
-[`lj_solid_liquid_coexistence_line.dat`](example/lj_solid_liquid_coexistence_line.dat): coexistence points calculated by  R. Agrawal and D. A. Kofke, Mol. Phys. 85, 43-59 (1995).
+[`lj_solid_liquid_coexistence_line.dat`](examples/lj/lj_solid_liquid_coexistence_line.dat): coexistence points calculated by  R. Agrawal and D. A. Kofke, Mol. Phys. 85, 43-59 (1995).
+
+Example: silicon phase boundaries
+--------------
+Inside the [`examples/si-sw/`](examples/si-sw/) directory of this repository you should find scripts for simulations to compute the phase diagram for silicon using the Stillinger-Weber potential.
+#### Scripts included
+[`in.dcci`](examples/lj/in.dcci): LAMMPS script to simulate 500 lennard-jones particles with each phase using the dcci method. 
+
+[`solid/phase.lammps`](examples/lj/solid/phase.lammps): data file of solid fcc phase containing information LAMMPS needs to run a simulation.
+
+[`liquid/phase.lammps`](examples/lj/liquid/phase.lammps): data file of liquid phase containing information LAMMPS needs to run a simulation.
+
+[`lj_solid_liquid_coexistence_line.dat`](examples/lj/lj_solid_liquid_coexistence_line.dat): coexistence points calculated by  R. Agrawal and D. A. Kofke, Mol. Phys. 85, 43-59 (1995).
 
 #### Running the example scripts
-From the [`example`](example/) directory use the following command to run the dcci simulations: 
+From the [`example/lj`](example/lj/) directory use the following command to run the dcci simulations: 
 ```
 mpirun -np 2 lmp_mpi -partition 2x1 -in in.lammps
 ```
