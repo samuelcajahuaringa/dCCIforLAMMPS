@@ -44,11 +44,11 @@ static const char cite_dcci[] =
   "dcci command:\n\n"
   "@article{cajahuaringa2021,\n"
   "  author={Samuel Cajahuaringa and Alex Antonelli},\n"
-  "  title={Nonequilibrium free-energy calculation of phase-boundaries using LAMMPS},\n"
-  "  journal={arXiv:2103.10449},\n"
-  "  volume={-},\n"
-  "  pages={-},\n"
-  "  year={2021},\n"
+  "  title={Non-equilibrium free-energy calculation of phase-boundaries using LAMMPS},\n"
+  "  journal={Comput. Mater. Sci.},\n"
+  "  volume={207},\n"
+  "  pages={111275},\n"
+  "  year={2022},\n"
   "  publisher={-}\n"
   "}\n\n";
 
