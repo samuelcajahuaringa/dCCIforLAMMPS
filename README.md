@@ -68,7 +68,7 @@ From the [`example/lj`](example/lj/) directory use the following command to run 
 ```
 mpirun -np 2 lmp_mpi -partition 2x1 -in in.lammps
 ```
-If the scripts ran successfully you will obtain in the `log.lammps` file and abble to compare with the coexistence points of the file [`lj_solid_liquid_coexistence_line.dat`](example/lj_solid_liquid_coexistence_line.dat) to obtain the following results:
+If the scripts ran successfully you will obtain in the `log.lammps` file and able to compare with the coexistence points of the file [`lj_solid_liquid_coexistence_line.dat`](example/lj_solid_liquid_coexistence_line.dat) to obtain the following results:
 
 <p align="center">
   <img src="https://github.com/samuelcajahuaringa/dCCIforLAMMPS/blob/master/dcci_lj.png" width="600"/>
