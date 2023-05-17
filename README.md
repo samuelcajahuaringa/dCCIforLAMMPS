@@ -25,6 +25,8 @@ What is new in these source codes?
 |dcci.cpp / .h                  | no            | dynamical integration of Clausius-Clapeyron equation.  |
 |fix.h                  | yes           | Added function reset_target_pressure.  |
 |fix_nh.cpp / .h  | yes           | control of external pressure by dcci command.  |
+|pair_lj_cut.cpp / .h | yes           | pair lj with fscale parameter to scale the forces.  |
+|pair_meam.cpp / .h meam_force.cpp meam.h | yes           | pair meam with fscale parameter to scale the forces.  |
 
 How to install?
 --------------
@@ -40,9 +42,9 @@ git clone https://github.com/samuelcajahuaringa/dCCIforLAMMPS.git DCCI
 
 3) Choose some machine file (e.g. Makefile.mpi) and build LAMMPS using the following commands:
 
-i) make yes-user-dcci
+  i) make yes-user-dcci
 
-ii) make mpi
+  ii) make mpi
 
 NOTE: Steps i and ii are necessary to install the required packages to reproduce the results presented in our [paper](https://doi.org/10.1016/j.commatsci.2022.111275).
 
