@@ -38,7 +38,7 @@ cd <your-local-lammps>/src/
 git clone https://github.com/samuelcajahuaringa/dCCIforLAMMPS.git DCCI
 ```
 
-2) Copy the codes fix.h, fix_nh.cpp/.h, fix_adapt_dcci.cpp/.h and dcci.cpp/.h in your src folder. Note, our source codes not have compatibility with old versions. Make a backup of your src folder if you want.
+2) Copy the codes fix.h, fix_nh.cpp/.h, fix_adapt_dcci.cpp/.h and dcci.cpp/.h in your src folder and the pair style modified to scale the forces such as pair lj. Note, our source codes not have compatibility with old versions. Make a backup of your src folder if you want. 
 
 3) Choose some machine file (e.g. Makefile.mpi) and build LAMMPS using the following commands:
 
