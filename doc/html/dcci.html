@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>dcci command &mdash; LAMMPS documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/tabs.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/lammps.css" type="text/css" />
+    <link rel="canonical" href="https://docs.lammps.org/dcci.html" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script async="async" src="_static/mathjax/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="Manual.html" class="icon icon-home"> LAMMPS
+          </a>
+              <div class="lammps_version">Version: <b>28 Mar 2023</b></div>
+              <div class="lammps_release">git info: </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Intro.html">1. Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Install.html">2. Install LAMMPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Build.html">3. Build LAMMPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Run_head.html">4. Run LAMMPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Commands.html">5. Commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Packages.html">6. Optional packages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Speed.html">7. Accelerate performance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Howto.html">8. Howto discussions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Examples.html">9. Example scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Tools.html">10. Auxiliary tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Errors.html">11. Errors</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Programmer Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Library.html">1. LAMMPS Library Interfaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Python_head.html">2. Use Python with LAMMPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Modify.html">3. Modifying &amp; extending LAMMPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Developer.html">4. Information for Developers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Command Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="commands_list.html">Commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fixes.html">Fixes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="computes.html">Computes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pairs.html">Pair Styles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bonds.html">Bond Styles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="angles.html">Angle Styles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dihedrals.html">Dihedral Styles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="impropers.html">Improper Styles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dumps.html">Dump Styles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fix_modify_atc_commands.html">fix_modify AtC commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Bibliography.html">Bibliography</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="Manual.html">LAMMPS</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content style-external-links">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="Manual.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">dcci command</li>
+      <li class="wy-breadcrumbs-aside">
+          <a href="https://www.lammps.org"><img src="_static/lammps-logo.png" width="64" height="16" alt="LAMMPS Homepage"></a> | <a href="Commands_all.html">Commands</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <p><span class="math notranslate nohighlight">\(\renewcommand{\AA}{\text{Å}}\)</span></p>
+<section id="dcci-command">
+<span id="index-0"></span><h1>dcci command<a class="headerlink" href="#dcci-command" title="Permalink to this heading">¶</a></h1>
+<section id="syntax">
+<h2>Syntax<a class="headerlink" href="#syntax" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>dcci Tcoex Pcoex lambda fix-ID barostat-ID t_sc keyword values
+</pre></div>
+</div>
+<ul>
+<li><p>Tcoex = intial temperature of coexistence for the two phases</p></li>
+<li><p>Pcoex = intial pressure of coexistence for the two phases</p></li>
+<li><p>lambda = initial scaling variable of this command</p></li>
+<li><p>fix-ID = ID of <em>fix adapt/dcci</em></p></li>
+<li><p>barostat-ID = ID of the barostat that controls the pressure</p></li>
+<li><p>t_sc = number of step for the dynamical Clausius-Clapeyron integration</p></li>
+<li><p>keyword = <em>temp</em> or <em>press</em></p>
+<pre class="literal-block"><em>temp</em> values = Tstart Tstop =  desired temperature of coexistence at start/end of run (temperature units)
+<em>press</em> values = Pstart Pstop =  desired pressure of coexistence at start/end of run (pressure units)</pre>
+</li>
+</ul>
+</section>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-LAMMPS notranslate"><div class="highlight"><pre><span></span><span class="n">dcci</span><span class="w"> </span><span class="m">0.7</span><span class="w"> </span><span class="m">1.0</span><span class="w"> </span><span class="nv">${lambda}</span><span class="w"> </span><span class="n">fxADAPT</span><span class="o">-</span><span class="n">DCCI</span><span class="w"> </span><span class="n">fxnpt</span><span class="w"> </span><span class="m">50000</span><span class="w"> </span><span class="n">press</span><span class="w"> </span><span class="m">1.0</span><span class="w"> </span><span class="m">174.0</span>
+<span class="n">dcci</span><span class="w"> </span><span class="m">0.7</span><span class="w"> </span><span class="m">1.0</span><span class="w"> </span><span class="nv">${lambda}</span><span class="w"> </span><span class="n">fxADAPT</span><span class="o">-</span><span class="n">DCCI</span><span class="w"> </span><span class="n">fxnpt</span><span class="w"> </span><span class="m">50000</span><span class="w"> </span><span class="n">temp</span><span class="w"> </span><span class="m">0.7</span><span class="w"> </span><span class="m">7.8</span>
+<span class="n">dcci</span><span class="w"> </span><span class="nv">${Tcoex}</span><span class="w"> </span><span class="nv">${Pcoex}</span><span class="w"> </span><span class="nv">${lambda}</span><span class="w"> </span><span class="n">fxADAPTDCCI</span><span class="w"> </span><span class="n">fxnph</span><span class="w"> </span><span class="nv">${t_sc}</span><span class="w"> </span><span class="n">press</span><span class="w"> </span><span class="nv">${Pi}</span><span class="w"> </span><span class="nv">${Pf}</span>
+<span class="n">dcci</span><span class="w"> </span><span class="nv">${Tcoex}</span><span class="w"> </span><span class="nv">${Pcoex}</span><span class="w"> </span><span class="nv">${lambda}</span><span class="w"> </span><span class="n">fxADAPTDCCI</span><span class="w"> </span><span class="n">fxnph</span><span class="w"> </span><span class="nv">${t_sc}</span><span class="w"> </span><span class="n">temp</span><span class="w"> </span><span class="nv">${Ti}</span><span class="w"> </span><span class="nv">${Tf}</span>
+</pre></div>
+</div>
+</section>
+<section id="description">
+<h2>Description<a class="headerlink" href="#description" title="Permalink to this heading">¶</a></h2>
+<p>This command allows you to compute the phase boundaries, knowing only a single
+coexistence point between phases, by performing a nonequilibrium dynamical
+Clausius-Clapeyron integration of both phases
+simultaneously <a class="reference internal" href="fix_adapt_dcci.html#dekoning"><span class="std std-ref">(deKoning)</span></a>. A detailed explanation of how to use this
+command and choose its parameters for optimal performance and accuracy is
+given in the paper by <a class="reference internal" href="fix_adapt_dcci.html#cajahuaringa"><span class="std std-ref">(Cajahuaringa)</span></a>. This is done
+by run only two systems in parallel (one for each phase). See the <a class="reference internal" href="Howto_replica.html"><span class="doc">Howto replica</span></a> doc for details of how to run replicas on multiple partitions of one or more processors.</p>
+<p>Instead of variables mention above, this command need scaling the forces in
+both systems in parallel by the <a class="reference internal" href="fix_adapt_dcci.html"><span class="doc">fix adapt/dcci</span></a>. The scaling parameter <em>lambda</em> is controlled by the dcci command, which is typically a variable previously set in the input script, so that each system is assigned the same scaling parameter and scaling pressure, see the paper <a class="reference internal" href="fix_adapt_dcci.html#cajahuaringa"><span class="std std-ref">(Cajahuaringa)</span></a> for more details. For example:</p>
+<div class="highlight-LAMMPS notranslate"><div class="highlight"><pre><span></span><span class="k">variable </span><span class="nv nv-Identifier">phase</span><span class="w"> </span><span class="n">world</span><span class="w"> </span><span class="n">solid</span><span class="w"> </span><span class="n">liquid</span>
+<span class="n">...</span>
+<span class="k">read_data</span><span class="w"> </span><span class="nv">${phase}</span><span class="o">/</span><span class="n">phase.lammps</span>
+<span class="n">...</span>
+<span class="k">variable </span><span class="nv nv-Identifier">lambda</span><span class="w"> </span><span class="n">equal</span><span class="w"> </span><span class="m">1.0</span>
+<span class="k">fix </span><span class="nv nv-Identifier">fxnpt</span><span class="w"> </span><span class="nv nv-Identifier">all</span><span class="w"> </span><span class="n">npt</span><span class="w"> </span><span class="n">temp</span><span class="w"> </span><span class="nv">${Tcoex}</span><span class="w"> </span><span class="nv">${Tcoex}</span><span class="w"> </span><span class="nv">${Tdamp}</span><span class="w"> </span><span class="n">iso</span><span class="w"> </span><span class="nv">${Pcoex}</span><span class="w"> </span><span class="nv">${Pcoex}</span><span class="w"> </span><span class="nv">${Pdamp}</span>
+<span class="k">fix </span><span class="nv nv-Identifier">fxADAPT-DCCI</span><span class="w"> </span><span class="nv nv-Identifier">all</span><span class="w"> </span><span class="n">adapt</span><span class="o">/</span><span class="n">dcci</span><span class="w"> </span><span class="nv">${lambda}</span><span class="w"> </span><span class="n">pair</span><span class="w"> </span><span class="n">lj</span><span class="o">/</span><span class="n">cut</span><span class="w"> </span><span class="n">fscale</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="o">*</span>
+<span class="n">dcci</span><span class="w"> </span><span class="nv">${Tcoex}</span><span class="w"> </span><span class="nv">${Pcoex}</span><span class="w"> </span><span class="nv">${lambda}</span><span class="w"> </span><span class="n">fxADAPT</span><span class="o">-</span><span class="n">DCCI</span><span class="w"> </span><span class="n">fxnpt</span><span class="w"> </span><span class="nv">${t_sc}</span><span class="w"> </span><span class="n">press</span><span class="w"> </span><span class="nv">${Pi}</span><span class="w"> </span><span class="nv">${Pf}</span>
+</pre></div>
+</div>
+<p>in the similar way of <a class="reference internal" href="temper.html"><span class="doc">temper</span></a> command is necessary especify the path of each phase, after that it is define a initial <em>lambda</em> value, who is pass to the <a class="reference internal" href="fix_adapt_dcci.html"><span class="doc">fix adapt/dcci</span></a> for scaling the forces in each phase and the dcci command calculates the new value of the <em>lambda</em> variable and scaling pressure to perform the simulation of both phase in the next coexistence condition, this process is repeated <em>t_sc</em> steps until achevies final temperature (pressure).</p>
+<p>The last argument <em>temp</em> or <em>press</em> keyword allows use two different control to computed the phase bounadaries. If is select the <em>temp</em> keyword is calculated the coxistence pressure as function of the temperature from <em>Tstart</em> to <em>Tstop</em>, otherwise it is select the <em>press</em> keyword is calculated the coxistence temperature as function of the pressure from <em>Pstart</em> to <em>Pstop</em>.</p>
+<p>As a dcci run proceeds, two log files and screen output files are created, one per phase. By default these files are named log.lammps.M and screen.M where <em>M</em> is the phase number from 0 to 1. See the <a class="reference internal" href="Run_options.html"><span class="doc">-log and -screen command-line swiches</span></a> for info on how to change these names.</p>
+<p>The main screen and log file (log.lammps) will list information about dcci dynamics assigned to each phase at each coxistence condition output timestep. E.g. for a simulation of two phases:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Running on 2 partitions of processors
+Step Tcoex  Pcoex  lambda Pcoex_rs pe1  pe2  vol1  vol2
+50000    0.770000    1.000000    1.00000000    1.00000000    -3657.45830    -3049.38969    508.9074    576.0835
+50001    0.770265    1.003460    0.99965590    1.00311471    -3658.25936    -3048.49558    508.9249    576.0910
+50002    0.770529    1.006920    0.99931295    1.00622820    -3658.60164    -3048.24218    508.9424    576.0989
+50003    0.770793    1.010380    0.99897058    1.00933989    -3658.79853    -3048.69379    508.9599    576.1074
+50004    0.771058    1.013840    0.99862835    1.01244937    -3658.54627    -3049.93109    508.9774    576.1165
+50005    0.771322    1.017300    0.99828565    1.01555599    -3658.06732    -3051.29644    508.9948    576.1260
+50006    0.771588    1.020760    0.99794228    1.01865956    -3657.88431    -3052.18231    509.0121    576.1360
+50007    0.771854    1.024220    0.99759863    1.02176047    -3657.73010    -3053.17874    509.0294    576.1465
+...
+</pre></div>
+</div>
+<p>The second and third columns rotuled as Tcoex and Pcoex, are the temperature and the pressure coexistences conditions calculated by the dcci method, the fourth and fifth columns rotuled as lambda and Pcoex_rs, are the lambda scaling parameter and the scaling pressure, the pe1 and pe2 are the instantaneus potential energy of each phase and the vol1 and vol2 are the instantaneus volume each phase.</p>
+<p>If you need calculated the phase boundaries between isotropic and anisotropic phases, for example: the phase boundaries between cubic diamond and beta-tin phases of silicon, this can be done using the follow protocol:</p>
+<div class="highlight-LAMMPS notranslate"><div class="highlight"><pre><span></span><span class="k">variable </span><span class="nv nv-Identifier">phase</span><span class="w"> </span><span class="n">world</span><span class="w"> </span><span class="n">Si</span><span class="o">-</span><span class="n">I</span><span class="w"> </span><span class="n">Si</span><span class="o">-</span><span class="n">II</span>
+<span class="k">variable </span><span class="nv nv-Identifier">ensemble</span><span class="w"> </span><span class="n">world</span><span class="w"> </span><span class="n">iso</span><span class="w"> </span><span class="n">aniso</span>
+<span class="n">...</span>
+<span class="k">read_data</span><span class="w"> </span><span class="nv">${phase}</span><span class="o">/</span><span class="n">phase.lammps</span>
+<span class="n">...</span>
+<span class="k">variable </span><span class="nv nv-Identifier">lambda</span><span class="w"> </span><span class="n">equal</span><span class="w"> </span><span class="m">1.0</span>
+<span class="k">fix </span><span class="nv nv-Identifier">f1</span><span class="w"> </span><span class="nv nv-Identifier">all</span><span class="w"> </span><span class="n">npt</span><span class="w"> </span><span class="n">temp</span><span class="w"> </span><span class="nv">${Tcoex}</span><span class="w"> </span><span class="nv">${Tcoex}</span><span class="w"> </span><span class="nv">${Tdamp}</span><span class="w"> </span><span class="nv">${ensemble}</span><span class="w"> </span><span class="nv">${Pcoex}</span><span class="w"> </span><span class="nv">${Pcoex}</span><span class="w"> </span><span class="nv">${Pdamp}</span>
+<span class="k">fix </span><span class="nv nv-Identifier">f2</span><span class="w"> </span><span class="nv nv-Identifier">all</span><span class="w"> </span><span class="n">adapt</span><span class="o">/</span><span class="n">dcci</span><span class="w"> </span><span class="nv">${lambda}</span><span class="w"> </span><span class="n">pair</span><span class="w"> </span><span class="n">sw</span><span class="w"> </span><span class="n">fscale</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="o">*</span>
+<span class="n">dcci</span><span class="w"> </span><span class="nv">${Tcoex}</span><span class="w"> </span><span class="nv">${Pcoex}</span><span class="w"> </span><span class="nv">${lambda}</span><span class="w"> </span><span class="n">f1</span><span class="w"> </span><span class="n">f2</span><span class="w"> </span><span class="nv">${t_sc}</span><span class="w"> </span><span class="n">temp</span><span class="w"> </span><span class="nv">${Pi}</span><span class="w"> </span><span class="nv">${Pf}</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>As described in <a class="reference internal" href="fix_adapt_dcci.html#cajahuaringa"><span class="std std-ref">(Cajahuaringa)</span></a>, for the calculation of the phase
+boundaries with small slope (in absolute value), which is common in solid-solid coexistence
+curves, it is more convenient control of the coexistence temperature and if, on other hand, the
+phase boundaries is expected to have a large slope (in absolute value),which is common in
+solid-fluid  and fluid-fluid coexistence curves, for these case is more convenient control the
+coexistence pressure.</p>
+</div>
+</section>
+<hr class="docutils" />
+<section id="restrictions">
+<h2>Restrictions<a class="headerlink" href="#restrictions" title="Permalink to this heading">¶</a></h2>
+<p>This command must be used with <a class="reference internal" href="fix_adapt_dcci.html"><span class="doc">fix adapt/dcci</span></a>.</p>
+<p>This command only works with atomistic systems.</p>
+<p>This command should be used with a fix that maintains the isothermal-isobaric (NPT) ensemble.</p>
+</section>
+<section id="related-commands">
+<h2>Related commands<a class="headerlink" href="#related-commands" title="Permalink to this heading">¶</a></h2>
+<p><a class="reference internal" href="fix_adapt_dcci.html"><span class="doc">fix adapt/dcci</span></a>, <a class="reference internal" href="temper.html"><span class="doc">temper</span></a>, <a class="reference internal" href="prd.html"><span class="doc">prd</span></a></p>
+</section>
+<section id="default">
+<h2>Default<a class="headerlink" href="#default" title="Permalink to this heading">¶</a></h2>
+<p>none</p>
+<hr class="docutils" />
+<p id="cajahuaringa"><strong>(Cajahuaringa)</strong> Cajahuaringa and Antonelli, Comput. Mater. Sci., 111275, 207 (2022).</p>
+<p id="dekoning"><strong>(deKoning)</strong> de Koning, Antonelli and Sidney, J Chem Phys 115, 11025 (2001).</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2003-2023 Sandia Corporation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(false);
+      });
+  </script> 
+
+</body>
+</html>

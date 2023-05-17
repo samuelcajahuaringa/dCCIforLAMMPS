@@ -12,32 +12,31 @@
 ------------------------------------------------------------------------- */
 
 /* ----------------------------------------------------------------------
-   Contributing author: Samuel Cajahuaringa Macollunco (CCES-UNICAMP/BR)
+   Contributing author: Samuel Cajahuaringa Macollunco (CEFET-MG/BR)
    Contact Email: samuelcajahuaringa@gmail.com 
 ------------------------------------------------------------------------- */
-#include "dcci.h"
-
-#include "atom.h"
-#include "citeme.h"
-#include "compute.h"
-#include "domain.h"
-#include "error.h"
-#include "finish.h"
-#include "fix.h"
-#include "fix_adapt_dcci.h"
-#include "force.h"
-#include "integrate.h"
-#include "memory.h"
-#include "modify.h"
-#include "output.h"
-#include "thermo.h"
-#include "timer.h"
-#include "universe.h"
-#include "update.h"
 
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
+#include "dcci.h"
+#include "fix_adapt_dcci.h"
+#include "universe.h"
+#include "domain.h"
+#include "atom.h"
+#include "update.h"
+#include "integrate.h"
+#include "modify.h"
+#include "compute.h"
+#include "force.h"
+#include "output.h"
+#include "thermo.h"
+#include "fix.h"
+#include "finish.h"
+#include "timer.h"
+#include "memory.h"
+#include "error.h"
+#include "citeme.h"
 
 using namespace LAMMPS_NS;
 
@@ -50,12 +49,12 @@ static const char cite_dcci[] =
   "  volume={207},\n"
   "  pages={111275},\n"
   "  year={2022},\n"
-  "  publisher={Elsevier}\n"
+  "  publisher={-}\n"
   "}\n\n";
 
 /* ---------------------------------------------------------------------- */
 
-DCCI::DCCI(LAMMPS *lmp) : Command(lmp) {
+DCCI::DCCI(LAMMPS *lmp) : Pointers(lmp) {
   if (lmp->citeme) lmp->citeme->add(cite_dcci); 
 }
 
@@ -77,26 +76,22 @@ void DCCI::command(int narg, char **arg)
     error->all(FLERR,"Must have more than one processor partition to dcci");
   if (domain->box_exist == 0)
     error->all(FLERR,"dcci command before simulation box is defined");
-  if (narg != 9) 
+  if (narg != 9) // && narg != 7)
     error->universe_all(FLERR,"Illegal dcci command");
  
   // coexistence condition 
-  Tcoex = utils::numeric(FLERR,arg[0],false,lmp);  // initial coexistence temperature 
-  Pcoex = utils::numeric(FLERR,arg[1],false,lmp);  // initial coexistence pressure
+  Tcoex = force->numeric(FLERR,arg[0]);  // initial coexistence temperature 
+  Pcoex = force->numeric(FLERR,arg[1]);  // initial coexistence pressure
 
-  lambda = utils::numeric(FLERR,arg[2],false,lmp); // lambda parameter need define too in the fix adapt/dcci
+  lambda = force->numeric(FLERR,arg[2]); // lambda parameter need define too in the fix adapt/dcci
   lambda_initial = lambda;               // initial lambda parameter
-
-  // ignore dcci command, if walltime limit was already reached
-  if (timer->is_timeout()) return;
 
   // Get and check if adapt/dcci fix exists
   for (whichfix = 0; whichfix < modify->nfix; whichfix++)
     if (strcmp(arg[3],modify->fix[whichfix]->id) == 0) break;
   if (whichfix == modify->nfix)
     error->universe_all(FLERR,"fix adapt/dcci ID is not defined");
-  //fix_adapt_dcci = (FixAdaptDCCI*)(modify->fix[whichfix]);
-  fix_adapt_dcci = dynamic_cast<FixAdaptDCCI*>(modify->fix[whichfix]);
+  fix_adapt_dcci = (FixAdaptDCCI*)(modify->fix[whichfix]);
 
   // Check input values lambdas should be equal, assign other dcci values
   if (lambda != fix_adapt_dcci->lambda)
@@ -110,42 +105,41 @@ void DCCI::command(int narg, char **arg)
     error->universe_all(FLERR,"fix ID to scaling is not defined");
  
   // Time scaling variable
-  t_sc = utils::bnumeric(FLERR,arg[5],false,lmp);  // total scaling steps
+  t_sc = force->bnumeric(FLERR,arg[5]);  // total scaling steps
   if (t_sc < 0)
     error->all(FLERR,"Invalid dcci command");
 
   if (strcmp(arg[6],"temp") == 0) {
     dcci_flag = 0;
-    T_start = utils::numeric(FLERR,arg[7],false,lmp);
-    T_end = utils::numeric(FLERR,arg[8],false,lmp);
+    T_start = force->numeric(FLERR,arg[7]);
+    T_end = force->numeric(FLERR,arg[8]);
     if (T_start == T_end) error->all(FLERR,"Illegal dcci command");
     lambda_final = T_start/T_end; // end lambda value
     sf = 2;
   } else if (strcmp(arg[6],"press") == 0) {
     dcci_flag = 1;
-    P_start = utils::numeric(FLERR,arg[7],false,lmp); // initial external pressure
-    P_end = utils::numeric(FLERR,arg[8],false,lmp);   // end external pressure
-
+    P_start = force->numeric(FLERR,arg[7]); // initial external pressure
+    P_end = force->numeric(FLERR,arg[8]);   // end external pressure
     if (P_start == P_end) error->all(FLERR,"Illegal dcci command");
     sf = 1;
   } else error->all(FLERR,"Illegal dcci command");
  
-  if (atom->molecular != Atom::ATOMIC)
+  atomic_flag  = atom->molecular;
+
+  if (atomic_flag != 0) 
     error->all(FLERR,"The dcci command is apply only to atomic system"); 
 
   // dCCI must be appropriate for temperature and pressure control,
   // i.e. it needs to provide a working Fix::reset_pressure() and must also
   // change the volume. This currently only applies to fix npt and fix nph 
 
-  if ( (!utils::strmatch(modify->fix[whichfix]->style,"^npt")) &&
-       (!utils::strmatch(modify->fix[whichfix]->style,"^nph")) )
+  if ((strncmp(modify->fix[whichfix]->style,"npt",3) != 0)
+      && (strncmp(modify->fix[whichfix]->style,"nph",3) != 0))
     error->universe_all(FLERR,"controling of pressure fix is not supported");
 
   // setup for long tempering run
 
   update->whichflag = 1;
-  timer->init_timeout(); 
-
   update->nsteps = t_sc;
   update->beginstep = update->firststep = update->ntimestep;
   update->endstep = update->laststep = update->firststep + t_sc;
@@ -157,9 +151,10 @@ void DCCI::command(int narg, char **arg)
   // local storage
 
   me_universe = universe->me;
-  MPI_Comm_rank(world,&me); 
+  MPI_Comm_rank(world,&me);
+  
   nworlds = universe->nworlds;
-  if (nworlds != 2) error->all(FLERR,"dcci apply only for two systems");  
+  if (nworlds!=2) error->all(FLERR,"dcci apply only for two systems");  
   iworld = universe->iworld;
   nktv2p = force->nktv2p;
 
@@ -170,6 +165,7 @@ void DCCI::command(int narg, char **arg)
   if (id < 0) error->all(FLERR,"dcci could not find thermo_pe compute");
   Compute *pe_compute = modify->compute[id];
   pe_compute->addstep(update->ntimestep+1);  // compute the potential energy of the system for each step
+
 
   int color;
   if (me == 0) color = 0;  
@@ -182,10 +178,11 @@ void DCCI::command(int narg, char **arg)
   MPI_Bcast(world2root,nworlds,MPI_INT,0,world); 
   
   // setup dcci runs
+
   double lambda_k,lambda_k_1,press_k,press_k_1,press_rs_k,press_rs_k_1;
-  lambda_k = lambda;
-  press_k = Pcoex;
-  press_rs_k =  Pcoex_rs = lambda * Pcoex;
+  lambda_k_1 = lambda_k = lambda; 
+  press_k_1 = press_k = Pcoex;
+  press_rs_k_1 = press_rs_k = Pcoex_rs = Pcoex;
 
   int nlocal = atom->nlocal;
   int natoms;
@@ -311,7 +308,7 @@ void DCCI::command(int narg, char **arg)
       press_rs_k_1 = lambda_k_1 * press_k_1;
     }
     
-  } 
+  }
 
   timer->barrier_stop();
 
@@ -348,7 +345,7 @@ void DCCI::print_status()
 
 double DCCI::scaling_function(double vi, double vf, double t)
 {
-  if (sf == 2) return vi / (1 + t * (vi/vf - 1)); // control of temperature
-  return vi + (vf - vi) * t; // control of pressure
+  if (sf == 2) return vi / (1 + t * (vi/vf - 1)); // <- for control of temperature
+  return vi + (vf - vi) * t; // <- for control of pressure
 }
 

@@ -1,4 +1,3 @@
-// clang-format off
 /* ----------------------------------------------------------------------
    LAMMPS - Large-scale Atomic/Molecular Massively Parallel Simulator
    http://lammps.sandia.gov, Sandia National Laboratories
@@ -13,55 +12,51 @@
 ------------------------------------------------------------------------- */
 
 /* ----------------------------------------------------------------------
-   Contributing author:  Samuel Cajahuaringa Macollunco (CCES-UNICAMP/BR)
+   Contributing author:  Samuel Cajahuaringa Macollunco (CEFET-MG/BR)
    lambda scaling forces parameters works with the dynamical
    Clausius-Clapeyron Integration (dcci) method
 ------------------------------------------------------------------------- */
 
-#include "fix_adapt_dcci.h"
-
-#include "atom.h"
-#include "error.h"
-#include "force.h"
-#include "group.h"
-#include "input.h"
-#include "math_const.h"
-#include "memory.h"
-#include "modify.h"
-#include "pair.h"
-#include "pair_hybrid.h"
-#include "respa.h"
-#include "update.h"
-#include "variable.h"
-
 #include <cmath>
 #include <cstring>
 #include <cstdlib>
+#include "fix_adapt_dcci.h"
+#include "atom.h"
+#include "update.h"
+#include "group.h"
+#include "modify.h"
+#include "force.h"
+#include "pair.h"
+#include "pair_hybrid.h"
+#include "input.h"
+#include "variable.h"
+#include "respa.h"
+#include "math_const.h"
+#include "memory.h"
+#include "error.h"
 
 using namespace LAMMPS_NS;
 using namespace FixConst;
 using namespace MathConst;
 
-enum{PAIR, ATOM};
+enum{PAIR,ATOM};
 
 /* ---------------------------------------------------------------------- */
 
 FixAdaptDCCI::FixAdaptDCCI(LAMMPS *lmp, int narg, char **arg) : Fix(lmp, narg, arg),
-nadapt(0), adapt(nullptr)
+nadapt(0), adapt(NULL)
 {
   if (narg < 5) error->all(FLERR,"Illegal fix adapt/dcci command");
-  lambda = utils::numeric(FLERR,arg[3],false,lmp);
+  lambda = force->numeric(FLERR,arg[3]);
   if (lambda < 0) error->all(FLERR,"Illegal fix adapt/dcci command");
 
   dynamic_group_allow = 1;
   create_attribute = 1;
-  //scalar_flag = 1;
-  vector_flag = 1;
-  size_vector = 2;
+  scalar_flag = 1;
   // count # of adaptations
   nadapt = 0;
 
-  int iarg = 4;  // atribute pair 
+  int iarg = 4;  // atribute pair or kspace
   while (iarg < narg) {
     if (strcmp(arg[iarg],"pair") == 0) {
       if (iarg+5 > narg) error->all(FLERR,"Illegal fix adapt/dcci command");
@@ -82,14 +77,17 @@ nadapt(0), adapt(nullptr)
     if (strcmp(arg[iarg],"pair") == 0) {
       if (iarg+5 > narg) error->all(FLERR,"Illegal fix adapt/dcci command");
       adapt[nadapt].which = PAIR;
-      adapt[nadapt].pstyle = utils::strdup(arg[iarg+1]);
-      adapt[nadapt].pparam = utils::strdup(arg[iarg+2]);
-      adapt[nadapt].pair = nullptr;
-      utils::bounds(FLERR,arg[iarg+3],1,atom->ntypes,
-                    adapt[nadapt].ilo,adapt[nadapt].ihi,error);
-      utils::bounds(FLERR,arg[iarg+4],1,atom->ntypes,
-                    adapt[nadapt].jlo,adapt[nadapt].jhi,error);
-
+      int n = strlen(arg[iarg+1]) + 1;
+      adapt[nadapt].pstyle = new char[n];
+      strcpy(adapt[nadapt].pstyle,arg[iarg+1]);
+      n = strlen(arg[iarg+2]) + 1;
+      adapt[nadapt].pparam = new char[n];
+      adapt[nadapt].pair = NULL;
+      strcpy(adapt[nadapt].pparam,arg[iarg+2]);
+      force->bounds(FLERR,arg[iarg+3],atom->ntypes,
+                    adapt[nadapt].ilo,adapt[nadapt].ihi);
+      force->bounds(FLERR,arg[iarg+4],atom->ntypes,
+                    adapt[nadapt].jlo,adapt[nadapt].jhi);
       nadapt++;
       iarg += 5;
     } else break;
@@ -149,34 +147,46 @@ void FixAdaptDCCI::init()
   for (int m = 0; m < nadapt; m++) {
     Adapt *ad = &adapt[m];
 
+    /*ad->ivar = input->variable->find(ad->var);
+    if (ad->ivar < 0)
+      error->all(FLERR,"Variable name for fix adapt does not exist");
+    if (!input->variable->equalstyle(ad->ivar))
+      error->all(FLERR,"Variable for fix adapt is invalid style");*/
+
     if (ad->which == PAIR) {
       anypair = 1;
-      ad->pair = nullptr;
+      ad->pair = NULL;
 
       // if ad->pstyle has trailing sub-style annotation ":N",
       //   strip it for pstyle arg to pair_match() and set nsub = N
       // this should work for appended suffixes as well
 
-      char *pstyle = utils::strdup(ad->pstyle);
+      int n = strlen(ad->pstyle) + 1;
+      char *pstyle = new char[n];
+      strcpy(pstyle,ad->pstyle);
+
       char *cptr;
       int nsub = 0;
       if ((cptr = strchr(pstyle,':'))) {
         *cptr = '\0';
-        nsub = utils::inumeric(FLERR,cptr+1,false,lmp);
+        nsub = force->inumeric(FLERR,cptr+1);
       }
 
       if (lmp->suffix_enable) {
-        if (lmp->suffix)
-          ad->pair = force->pair_match(fmt::format("{}/{}",pstyle,lmp->suffix),1,nsub);
-        if ((ad->pair == nullptr) && lmp->suffix2)
-          ad->pair = force->pair_match(fmt::format("{}/{}",pstyle,lmp->suffix2),1,nsub);
+        int len = 2 + strlen(pstyle) + strlen(lmp->suffix);
+        char *psuffix = new char[len];
+        strcpy(psuffix,pstyle);
+        strcat(psuffix,"/");
+        strcat(psuffix,lmp->suffix);
+        ad->pair = force->pair_match(psuffix,1,nsub);
+        delete[] psuffix;
       }
-
-      if (ad->pair == nullptr) ad->pair = force->pair_match(pstyle,1,nsub);
-      if (ad->pair == nullptr) error->all(FLERR,"Fix adapt pair style {} not found", pstyle);
+      if (ad->pair == NULL) ad->pair = force->pair_match(pstyle,1,nsub);
+      if (ad->pair == NULL)
+        error->all(FLERR,"Fix adapt/dcci pair style does not exist");
 
       void *ptr = ad->pair->extract(ad->pparam,ad->pdim);
-      if (ptr == nullptr)
+      if (ptr == NULL)
         error->all(FLERR,"Fix adapt/dcci pair style param not supported");
 
       // for pair styles only parameters that are 2-d arrays in atom types or
@@ -190,13 +200,14 @@ void FixAdaptDCCI::init()
 
       // if pair hybrid, test that ilo,ihi,jlo,jhi are valid for sub-style
 
-      if (utils::strmatch(force->pair_style,"^hybrid")) {
-        auto pair = dynamic_cast<PairHybrid *>(force->pair);
+      if (strcmp(force->pair_style,"hybrid") == 0 ||
+          strcmp(force->pair_style,"hybrid/overlay") == 0) {
+        PairHybrid *pair = (PairHybrid *) force->pair;
         for (i = ad->ilo; i <= ad->ihi; i++)
           for (j = MAX(ad->jlo,i); j <= ad->jhi; j++)
             if (!pair->check_ijtype(i,j,pstyle))
-              error->all(FLERR,"Fix adapt/dcci type pair range is not valid "
-                         "for pair hybrid sub-style {}", pstyle);
+              error->all(FLERR,"Fix adapt/dcci type pair range is not valid for "
+                         "pair hybrid sub-style");
       }
 
       delete [] pstyle;
@@ -216,13 +227,13 @@ void FixAdaptDCCI::init()
     }
   }
 
-  if (utils::strmatch(update->integrate_style,"^respa"))
-    nlevels_respa = (dynamic_cast<Respa *>(update->integrate))->nlevels;
+  if (strstr(update->integrate_style,"respa"))
+    nlevels_respa = ((Respa *) update->integrate)->nlevels;
 }
 
 /* ---------------------------------------------------------------------- */
 
-void FixAdaptDCCI::setup_pre_force(int /*vflag*/)
+void FixAdaptDCCI::setup_pre_force(int vflag)
 {
   change_settings();
 }
@@ -237,7 +248,7 @@ void FixAdaptDCCI::setup_pre_force_respa(int vflag, int ilevel)
 
 /* ---------------------------------------------------------------------- */
 
-void FixAdaptDCCI::pre_force(int /*vflag*/)
+void FixAdaptDCCI::pre_force(int vflag)
 {
   change_settings();
 }
@@ -286,7 +297,21 @@ void FixAdaptDCCI::change_settings()
     }
   }
 
-  if (anypair) force->pair->reinit();
+  //modify->addstep_compute(update->ntimestep + nevery);
+
+  // re-initialize pair styles if any PAIR settings were changed
+  // ditto for bond styles if any BOND setitings were changes
+  // this resets other coeffs that may depend on changed values,
+  //   and also offset and tail corrections
+
+  if (anypair) {
+    for (int m = 0; m < nadapt; m++) {
+      Adapt *ad = &adapt[m];
+      if (ad->which == PAIR) {
+        ad->pair->reinit();
+      }
+    }
+  }
 }
 
 /* ----------------------------------------------------------------------
@@ -309,10 +334,6 @@ void FixAdaptDCCI::restore_settings()
 
   if (anypair) force->pair->reinit();
 }
-
-/* ----------------------------------------------------------------------
-   lambda scaling parameter to force calculations
-------------------------------------------------------------------------- */
 
 double FixAdaptDCCI::compute_scalar()
 {

@@ -12,23 +12,23 @@
 ------------------------------------------------------------------------- */
 
 #ifdef COMMAND_CLASS
-// clang-format off
-CommandStyle(dcci,DCCI);
-// clang-format on
+
+CommandStyle(dcci,DCCI)
+
 #else
 
 #ifndef LMP_DCCI_H
 #define LMP_DCCI_H
 
-#include "command.h"
+#include "pointers.h"
 
 namespace LAMMPS_NS {
 
-class DCCI : public Command {
+class DCCI : protected Pointers {
  public:
   DCCI(class LAMMPS *);
-  ~DCCI() override;
-  void command(int, char **) override;
+  ~DCCI();
+  void command(int, char **);
 
  private:
   int me,me_universe;          // my proc ID in world and universe
@@ -55,7 +55,7 @@ class DCCI : public Command {
   int sf;                      // scaling function option  
   double scaling_function(double, double, double);
   
-  class FixAdaptDCCI *fix_adapt_dcci;
+  class FixAdaptDCCI * fix_adapt_dcci;
 };
 
 }

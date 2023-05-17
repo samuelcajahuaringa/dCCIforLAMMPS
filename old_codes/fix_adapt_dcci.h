@@ -12,9 +12,9 @@
 ------------------------------------------------------------------------- */
 
 #ifdef FIX_CLASS
-// clang-format off
-FixStyle(adapt/dcci,FixAdaptDCCI);
-// clang-format on
+
+FixStyle(adapt/dcci,FixAdaptDCCI)
+
 #else
 
 #ifndef LMP_FIX_ADAPT_DCCI_H
@@ -27,16 +27,16 @@ namespace LAMMPS_NS {
 class FixAdaptDCCI : public Fix {
  public:
   FixAdaptDCCI(class LAMMPS *, int, char **);
-  ~FixAdaptDCCI() override;
-  int setmask() override;
-  void init() override;
-  void setup_pre_force(int) override;
-  void pre_force(int) override;
-  void post_run() override;
-  void setup_pre_force_respa(int,int) override;
-  void pre_force_respa(int,int,int) override;
+  ~FixAdaptDCCI();
+  int setmask();
+  void init();
+  void setup_pre_force(int);
+  void pre_force(int);
+  void post_run();
+  void setup_pre_force_respa(int,int);
+  void pre_force_respa(int,int,int);
   double lambda;
-  double compute_scalar() override;
+  double compute_scalar();
 
  private:
   int nadapt,fscaleflag;
